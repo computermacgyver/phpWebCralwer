@@ -6,14 +6,15 @@ include("CONFIG_db.php");
 # Above file defines the following variables: 
 #
 # $db_host = "localhost"
-# $db_name = "somedatabase"
+# $db_username = "jrandom"
 # $db_password = "ASDF!!1!one1"
+# $db_name = "somedb"
 # $operator_email is used to mail the user on script completion
 # $operator_email = "j.random@example.com"
 # 
 
 function /*public*/ db_connect() {
-	$GLOBALS["db"] = mysql_connect($db_host, $db_name, $db_password or
+	$GLOBALS["db"] = mysql_connect($db_host, $db_username, $db_password or
 	    die("Could not connect: " . mysql_error());
 	mysql_select_db($db_name,$GLOBALS["db"]);
 }
