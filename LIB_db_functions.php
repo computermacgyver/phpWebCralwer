@@ -5,16 +5,17 @@
 include("CONFIG_db.php");
 # Above file defines the following variables: 
 #
-# $db_host = "localhost"
-# $db_username = "jrandom"
-# $db_password = "ASDF!!1!one1"
-# $db_name = "somedb"
-# $operator_email is used to mail the user on script completion
-# $operator_email = "j.random@example.com"
+# $db_host = "localhost";
+# $db_username = "jrandom";
+# $db_password = "ASDF!!1!one1";
+# $db_name = "somedb";
+## $operator_email is used to mail the user on script completion
+# $operator_email = "j.random@example.com";
 # 
 
 function /*public*/ db_connect() {
-	$GLOBALS["db"] = mysql_connect($db_host, $db_username, $db_password or
+	global $db_host, $db_username, $db_password, $db_name;
+	$GLOBALS["db"] = mysql_connect($db_host, $db_username, $db_password) or
 	    die("Could not connect: " . mysql_error());
 	mysql_select_db($db_name,$GLOBALS["db"]);
 }
@@ -24,10 +25,11 @@ function /*public*/ db_connect() {
 #db_store_link($seed,$resolved_address;
 
 function /*private*/ db_run_select($strSQL,$returnVal=false) {
+	global $db_name;
 	mysql_select_db($db_name);
 	#echo $strSQL . "\n";	
 	try {
-		$result = mysql_query($strSQL,$GLOBALS["db"]); #or die('Query failed: ' . mysql_error());
+		$result = mysql_query($strSQL,$GLOBALS["db"]) or die('Query failed: ' . mysql_error());
 	}
 	catch(Exception $e)
 	{

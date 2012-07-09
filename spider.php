@@ -10,6 +10,7 @@ include("LIB_exclusion_list.php");              // list of excluded keywords
 include("LIB_simple_spider.php");               // spider routines used by this app.
 include("LIB_db_functions.php");
 include("LIB_encoding.php");
+include("CONFIG_db.php");
 
 set_time_limit(0);                           // Don't let PHP timeout
 
@@ -48,8 +49,8 @@ while ($seed!=Null) {
 			if (exclude_link($seed["strURL"])) throw new Exception("Page in excluded list: $strURL\n");
 			$downloaded_page = http_get_withheader($seed["strURL"], "");
 			$content_type=$downloaded_page['STATUS']['content_type'];
-			$code=$strStatus["http_code"];
 			$strStatus=$downloaded_page['STATUS'];
+			$code=$strStatus["http_code"];
 			if ($code!=200 || strpos(strtolower($content_type),"text")===false) {
 				print "Skipping....http_code is $code content_type is $content_type\n";
 				db_marked_processed($seed);
@@ -116,9 +117,9 @@ while ($seed!=Null) {
 	$seed = db_get_next_to_process();
 }
 db_close();
-echo "Done";
+echo "Done.\n";
 
-#link_array now has all off-site links from SEED page
+#link_array now has all off-site links from SEED pagehttps://www.facebook.com/pages/Clapham-Adventure/407825022594984
 #insert into database
 #for ($xx=0; $xx<length($link_array); $xx++) {
 	#store new page returns unique id for url
