@@ -3,6 +3,9 @@ error_reporting( E_ALL );
 date_default_timezone_set('Europe/London');
 
 # Initialization
+
+include_once("CONFIG_db.php");						//Include configuration (do this first)
+
 include_once("LIB_http.php");                        // http library
 include_once("LIB_parse.php");                       // parse library
 include_once("LIB_resolve_addresses.php");           // address resolution library
@@ -10,15 +13,9 @@ include_once("LIB_exclusion_list.php");              // list of excluded keyword
 include_once("LIB_simple_spider.php");               // spider routines used by this app.
 include_once("LIB_db_functions.php");
 include_once("LIB_encoding.php");
-include_once("CONFIG_db.php");
+
 
 set_time_limit(0);                           // Don't let PHP timeout
-
-$MAX_PENETRATION = 5;                           // Set spider penetration depth
-$FETCH_DELAY     = 1;                           // Wait one second between page fetches
-$ALLOW_OFFSITE   = true;                        // Don't allow spider to roam from the SEED_URL's domain
-$ONLY_OFFSITE   = false;                        // Only include URL's to remote domains
-#$spider_array = array();
 
 db_connect();
 
@@ -96,7 +93,10 @@ while ($seed!=Null) {
 		if (!exclude_link($resolved_address)) {
 			#$link_array[] = $resolved_addres;
 			try {
-				db_store_link($seed,$resolved_address);//_internal_only for only links in DB
+				if ($MAX_PENETRATION==0)//crawl only links in db
+					db_store_link_internal_only($seed,$resolved_address);
+				else //grow crawl list (possibly in conjuction with white list)
+					db_store_link($seed,$resolved_address);
 			} catch(Exception $e) {
 				echo "***ERROR***\n";
 				echo "Couldn't store: $resolved_address\n";
