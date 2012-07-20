@@ -3,14 +3,14 @@ error_reporting( E_ALL );
 date_default_timezone_set('Europe/London');
 
 # Initialization
-include("LIB_http.php");                        // http library
-include("LIB_parse.php");                       // parse library
-include("LIB_resolve_addresses.php");           // address resolution library
-include("LIB_exclusion_list.php");              // list of excluded keywords
-include("LIB_simple_spider.php");               // spider routines used by this app.
-include("LIB_db_functions.php");
-include("LIB_encoding.php");
-include("CONFIG_db.php");
+include_once("LIB_http.php");                        // http library
+include_once("LIB_parse.php");                       // parse library
+include_once("LIB_resolve_addresses.php");           // address resolution library
+include_once("LIB_exclusion_list.php");              // list of excluded keywords
+include_once("LIB_simple_spider.php");               // spider routines used by this app.
+include_once("LIB_db_functions.php");
+include_once("LIB_encoding.php");
+include_once("CONFIG_db.php");
 
 set_time_limit(0);                           // Don't let PHP timeout
 

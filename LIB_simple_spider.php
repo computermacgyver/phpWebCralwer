@@ -126,6 +126,8 @@ function get_domain($url) {
     //remove www. as it is a default 3rd level domain that will usually be added if not present.
     $url = str_replace("www.", "", $url);
     
+    $url = str_replace(":".get_port($url),"",$url);
+    
     // Remove page and directory references
     if(stristr($url, "/"))
         $url = substr($url, 0, strpos($url, "/"));
@@ -133,32 +135,42 @@ function get_domain($url) {
     return $url;
 }
 
-function get_second_level_domain($url) {
+function get_port($url) {
+	$url = str_replace(get_protocol($url), "", $url);
+    if (stristr($url,":")) {
+		$start=strpos($url,":");
+		$end=strpos($url,"/",$start);
+		echo "S=$start  END=$end\n";
+		if ($end===false) return substr($url,$start+1);
+		return substr($url,$start+1,$end-1-$start);
+	} else {
+		return 80;
+	}
+}
+
+//return url from xth level domain 1=top level (uk), 2=gov.uk, 3= direct.gov.uk
+function get_domain_part($url,$level) {
 	$d = get_domain($url);
 	
-	//Some issues with ports or other strange things, chop off at .uk
-	$d = substr($d,0,strrpos($d,".uk")+3);
-	
-	if (substr_count($d,".")<3) return $d;
-	
+	if (substr_count($d,".")<=$level-1) return $d;
 	
 	$len = strlen($d);
-	//find third to last period
-	$pos = strrpos($d,".");
-	if ($pos===false) return $d;
-	$pos=$len - $pos + 2;
-	
-	$pos = strrpos($d,".",-1*$pos);
-	if ($pos===false) return $d;
-	$pos=$len - $pos + 2;
-
-	
-	$pos = strrpos($d,".",-1*$pos);
-	if ($pos===false) return $d;
-	$pos = $pos+1;
-	return substr($d,$pos);
+	//find $level to last period
+	$pos = -1;
+	$count=0;
+	while ($count<$level) {
+		$count++;
+		$pos = strrpos($d,".",-1*$pos-1);
+		if ($pos===false) break;
+		
+		echo "POS=$pos";
+			
+		$pos=$len - $pos;
+		echo  " POS'=$pos str:  " .substr($d,-1*$pos) . "\n";
+	}
+	$pos = $pos-1;
+	return substr($d,-1*$pos);
 }
-	
 
 function get_protocol($url) {
     $proto="udef://";
@@ -298,12 +310,13 @@ function exclude_link($link)
             $exclude=true;
             }
         }*/
-     $domain =    get_domain($link);
-     if (strpos($domain,".gov.uk")===false && strpos($domain,"mod.uk")===false && strpos($domain,"parliament.uk")===false
-     	&& strpos($domain,"bl.uk")===false && strpos($domain,"nls.uk")===false) {
-     	$exclude=true;
-     }
-        
+        global $whitelistdomain, $whitelistdomainlevel, $whitelistdomainlist;
+      if ($whitelistdomain) {
+	     $domain =    get_domain_part($link,$whitelistdomainlevel);
+	     if (strpos($whitelistdomainlist,":".$domain.":")===false) {
+	     	$exclude=true;
+	     }
+	   }      
 
     return $exclude;
     }

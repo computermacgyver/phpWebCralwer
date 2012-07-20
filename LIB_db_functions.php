@@ -2,7 +2,7 @@
 
 #Database Functions
 
-include("CONFIG_db.php");
+include_once("CONFIG_db.php");
 # Above file defines the following variables: 
 #
 # $db_host = "localhost";
@@ -11,6 +11,7 @@ include("CONFIG_db.php");
 # $db_name = "somedb";
 ## $operator_email is used to mail the user on script completion
 # $operator_email = "j.random@example.com";
+# $whitelistdomain, $whitelistdomainlevel, $whitelistdomainlist; //NEED to document SAH
 # 
 
 function /*public*/ db_connect() {
@@ -82,7 +83,7 @@ function db_get_next_spider_target() {
 	global $MAX_PENETRATION;
 	#echo "Getting next target from database...\n";
 	$strSQL = "SELECT * from tblPages WHERE NOT bolHarvested AND iLevel < " . $MAX_PENETRATION . 
-		" AND strURL LIKE '%direct.gov.uk%' LIMIT 1";
+		" LIMIT 1";
 	return db_run_select($strSQL);
 }
 
