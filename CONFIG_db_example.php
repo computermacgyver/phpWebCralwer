@@ -25,7 +25,7 @@ $MAX_PENETRATION = 5;
 $FETCH_DELAY     = 1;
 // Wait five seconds between page fetches on same domain (NOT IMPLEMENTED YET)
 $SAME_DOMAIN_FETCH_DELAY= 5;
-// Don't allow spider to roam from the SEED_URL's domain
+// Allow spider to roam from the SEED_URL's domain
 $ALLOW_OFFSITE   = true;                       
 // Only include URL's to remote domains
 $ONLY_OFFSITE   = false;                       
