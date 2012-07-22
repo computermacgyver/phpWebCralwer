@@ -335,9 +335,10 @@ function http($target, $ref, $method, $data_array, $incl_head)
 	curl_setopt($ch, CURLOPT_FOLLOWLOCATION, TRUE);     // Follow redirects
 	curl_setopt($ch, CURLOPT_MAXREDIRS, 4);             // Limit redirections to four
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);     // Return in string
-	curl_setopt($ch,CURLOPT_HTTPHEADER,array('accept: text/*'); // Ask for text only
+	curl_setopt($ch, CURLOPT_HEADERFUNCTION, 'read_header'); // Callback function
+	curl_setopt($ch, CURLOPT_HTTPHEADER,array('accept: text/*'); // Ask for text only
 	if ($fetchrangeonly == true)
-	    curl_setopt($ch, CURLOPT_RANGE, "0-99999");     // Size limit
+	    curl_setopt($ch, CURLOPT_RANGE, "0-".strval($maxfetchsize-1); // Size limit
 
     # Create return array
     $return_array['FILE']   = curl_exec($ch); 
@@ -350,4 +351,40 @@ function http($target, $ref, $method, $data_array, $incl_head)
     # Return results
   	return $return_array;
     }
+
+# Check if we're being given a file which is too large, or which is
+# in a non-text format we can't read.
+# This callback function is given the header one line at a time.
+# Hilariously, the way to return an error (and abort the transfer)
+# is to return anything other than the length of $string.
+# XXX TODO: Check that this hasn't eaten the headers, stopping them
+#           being returned as part of the content array.
+function read_header($ch, $string)
+    {
+    $length = strlen($string);
+    # echo "Header: $string<br />\n";
+    # XXX check http_parse_headers library is valid here. Otherwise, unpack from source
+    $headerarray = http_parse_headers($string)
+    if (array_key_exists('Content-Type', $headerarray))
+        {
+            if (preg_match( '/text\//', $headerarray['Content-Type']) == 0)
+                {
+                    print "Content-Type not text/*. Aborting fetch.";
+                    # Abort fetch
+                    return FALSE;
+                }
+        }
+    if (array_key_exists('Content-Length', $headerarray))
+        {
+            if ($headerarray['Content-Length'] > $maxfetchsize)
+                {
+                    print "Content too large. Server ignoring Range:? Aborting fetch.";
+                    # Abort fetch
+                    return FALSE;
+                }
+        }
+    # Continue with fetch
+    return $length;
+    }
+
 ?>
