@@ -19,8 +19,8 @@ set_time_limit(0);                           // Don't let PHP timeout
 
 db_connect();
 
-$seed = db_get_next_to_process();
-while ($seed!=Null) {
+$seed = db_get_next_to_harvest();
+while ($seed!=NULL) {
 
 	$SEED_URL        = $seed["strURL"];    // First URL spider downloads
 	#$START_PENETRATION = seed['iLevel'];
@@ -61,7 +61,7 @@ while ($seed!=Null) {
 			}
 		} catch (Exception $e) {
 				echo "Exeception caught: $e . Skipping page\n";
-				db_marked_processed($seed);
+				db_marked_harvested($seed);
 				$seed = db_get_next_to_process();
 				continue;
 	 	}
@@ -107,14 +107,14 @@ while ($seed!=Null) {
 		#echo "Harvested: ".$resolved_address." \n";
 	}
 
-	db_marked_processed($seed);
+	db_marked_harvested($seed);
 
 	echo "Pause...\n";
 
 	$wait = mt_rand(9000000,11000000);#9 to 11 seconds
 	usleep($wait); #(arg in microseconds)
 
-	$seed = db_get_next_to_process();
+	$seed = db_get_next_to_harvest();
 }
 db_close();
 echo "Done.\n";

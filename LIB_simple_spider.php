@@ -162,11 +162,9 @@ function get_domain_part($url,$level) {
 		$count++;
 		$pos = strrpos($d,".",-1*$pos-1);
 		if ($pos===false) break;
-		
-		echo "POS=$pos";
-			
+		//echo "POS=$pos";
 		$pos=$len - $pos;
-		echo  " POS'=$pos str:  " .substr($d,-1*$pos) . "\n";
+		//echo  " POS'=$pos str:  " .substr($d,-1*$pos) . "\n";
 	}
 	$pos = $pos-1;
 	return substr($d,-1*$pos);
