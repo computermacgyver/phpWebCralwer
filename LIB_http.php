@@ -145,7 +145,7 @@ function http_get_withheader_suffixcheck($target, $ref)
     {
     foreach ($excludedextensions as $dotext)
         {
-        if ($dotext == substr($target, -(strlen($dotext)))
+        if ($dotext == substr($target, -(strlen($dotext))))
             {
             # Create return array
             $return_array['FILE'] = "";
@@ -350,9 +350,9 @@ function http($target, $ref, $method, $data_array, $incl_head)
 	curl_setopt($ch, CURLOPT_MAXREDIRS, 4);             // Limit redirections to four
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);     // Return in string
 	curl_setopt($ch, CURLOPT_HEADERFUNCTION, 'read_header'); // Callback function
-	curl_setopt($ch, CURLOPT_HTTPHEADER,array('accept: text/*'); // Ask for text only
+	curl_setopt($ch, CURLOPT_HTTPHEADER,array('accept: text/*')); // Ask for text only
 	if ($fetchrangeonly == true)
-	    curl_setopt($ch, CURLOPT_RANGE, "0-".strval($maxfetchsize-1); // Size limit
+	    curl_setopt($ch, CURLOPT_RANGE, "0-".strval($maxfetchsize-1)); // Size limit
 
     # Create return array
     $return_array['FILE']   = curl_exec($ch); 
@@ -378,7 +378,7 @@ function read_header($ch, $string)
     $length = strlen($string);
     # echo "Header: $string<br />\n";
     # XXX check http_parse_headers library is valid here. Otherwise, unpack from source
-    $headerarray = http_parse_headers($string)
+    $headerarray = http_parse_headers($string);
     if (array_key_exists('Content-Type', $headerarray))
         {
             if (preg_match( '/text\//', $headerarray['Content-Type']) == 0)

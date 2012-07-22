@@ -89,7 +89,7 @@ function db_get_next_to_harvest() {
 	
 	if ($result==NULL) {//try without domain table
 		$strSQL = "SELECT tblPages.*, CURRENT_TIMESTAMP AS dtLastAccessed from tblPages WHERE bolHarvested=0 LIMIT 1";
-		print "$strSQL\n";
+		//print "$strSQL\n";
 		$result = db_run_select($strSQL);
 		if ($result == NULL) return $result; //No more pages
 		//else wait the appropriate time to return a page of the same domain

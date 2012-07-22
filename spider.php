@@ -53,7 +53,7 @@ while ($seed!=NULL) {
 			if ($code!=200 || strpos(strtolower($content_type),"text")===false) {
 				print "Skipping....http_code is $code content_type is $content_type\n";
 				db_marked_processed($seed);
-				$seed = db_get_next_to_process();
+				$seed = db_get_next_to_harvest();
 				continue;
 			}
 			$strHTML = $downloaded_page['FILE'];
@@ -64,7 +64,7 @@ while ($seed!=NULL) {
 		} catch (Exception $e) {
 				echo "Exeception caught: $e . Skipping page\n";
 				db_marked_harvested($seed);
-				$seed = db_get_next_to_process();
+				$seed = db_get_next_to_harvest();
 				continue;
 	 	}
 	} else {

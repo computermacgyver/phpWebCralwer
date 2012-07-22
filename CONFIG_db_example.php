@@ -8,9 +8,10 @@ $db_password = "ASDF!!1!one1";
 $db_name = "somedb";
 ## $operator_email is used to mail the user on script completion
 $operator_email = "j.random@example.com";
+
 ## User agent string to send in HTTP requests
-$user_agent = "Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.0.18) Gecko/2010021501 Ubuntu/8.04 (hardy) Firefox/3.0.18"
-$cookie_file_location = "/home/jrandom/cookies.txt"
+$user_agent = "Mozilla/5.0 phpWebCrawler Contact Info Here ";
+$cookie_file_location = "/home/jrandom/cookies.txt";
 
 # $whitelistdomain, $whitelistdomainlevel, $whitelistdomainlist; //NEED to document SAH
 //Crawl all .gov.uk and .org.uk sites
@@ -24,7 +25,7 @@ $whitelistdomainlist=":gov.uk:.org.uk:";
 //Fetch only first part of each page, to avoid huge files?
 $fetchrangeonly=true;
 // If $fetchrangeonly=true, what range to fetch? Here, the first 100KB is specified.
-$maxfetchsize=100000
+$maxfetchsize=100000;
 // Exclude these file extensions from being fetched:
 $excludedextensions = array(".avi", ".mp4", ".mp3", ".wma", ".wmv", ".ogg", ".pdf", ".doc", ".xls", ".docx", ".xlsx", ".ppt", ".pptx", ".odt", ".ods", ".odp", ".flv");
 
