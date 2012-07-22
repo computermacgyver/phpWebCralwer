@@ -24,7 +24,7 @@ $whitelistdomainlist=":gov.uk:.org.uk:";
 //Fetch only first part of each page, to avoid huge files?
 $fetchrangeonly=true;
 // If $fetchrangeonly=true, what range to fetch? Here, the first 100KB is specified.
-$fetchrange="0-99999";
+$maxfetchsize=100000
 
 // Set spider penetration depth. If 0 crawl only pages in database.
 $MAX_PENETRATION = 5;                           
