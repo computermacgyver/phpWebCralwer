@@ -8,6 +8,9 @@ $db_password = "ASDF!!1!one1";
 $db_name = "somedb";
 ## $operator_email is used to mail the user on script completion
 $operator_email = "j.random@example.com";
+## User agent string to send in HTTP requests
+$user_agent = "Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.0.18) Gecko/2010021501 Ubuntu/8.04 (hardy) Firefox/3.0.18"
+$cookie_file_location = "/home/jrandom/cookies.txt"
 
 # $whitelistdomain, $whitelistdomainlevel, $whitelistdomainlist; //NEED to document SAH
 //Crawl all .gov.uk and .org.uk sites
@@ -18,6 +21,12 @@ $whitelistdomain=true;
 $whitelistdomainlevel=2; 
 //list of domains starting, ending, and separated with :
 $whitelistdomainlist=":gov.uk:.org.uk:";
+//Fetch only first part of each page, to avoid huge files?
+$fetchrangeonly=true;
+// If $fetchrangeonly=true, what range to fetch? Here, the first 100KB is specified.
+$maxfetchsize=100000
+// Exclude these file extensions from being fetched:
+$excludedextensions = array(".avi", ".mp4", ".mp3", ".wma", ".wmv", ".ogg", ".pdf", ".doc", ".xls", ".docx", ".xlsx", ".ppt", ".pptx", ".odt", ".ods", ".odp", ".flv");
 
 // Set spider penetration depth. If 0 crawl only pages in database.
 $MAX_PENETRATION = 5;                           
@@ -25,7 +34,7 @@ $MAX_PENETRATION = 5;
 $FETCH_DELAY     = 1;
 // Wait five seconds between page fetches on same domain (NOT IMPLEMENTED YET)
 $SAME_DOMAIN_FETCH_DELAY= 5;
-// Don't allow spider to roam from the SEED_URL's domain
+// Allow spider to roam from the SEED_URL's domain
 $ALLOW_OFFSITE   = true;                       
 // Only include URL's to remote domains
 $ONLY_OFFSITE   = false;                       

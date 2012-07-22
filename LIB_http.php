@@ -81,14 +81,15 @@ Webbot defaults (scope = global)
 # Define how your webbot will appear in server logs
 #define("WEBBOT_NAME", "Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/532.5 (KHTML, like Gecko) Chrome/4.0.249.43 Safari/532.5");
 
-define("WEBBOT_NAME", "Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.0.18) Gecko/2010021501 Ubuntu/8.04 (hardy) Firefox/3.0.18");
+#define("WEBBOT_NAME", "Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.0.18) Gecko/2010021501 Ubuntu/8.04 (hardy) Firefox/3.0.18");
 
+define("WEBBOT_NAME", $user_agent);
 
 # Length of time cURL will wait for a response (seconds)
 define("CURL_TIMEOUT", 250);
 
 # Location of your cookie file. (Must be fully resolved local address)
-define("COOKIE_FILE", "/home/oxlab/cookies.txt");
+define("COOKIE_FILE", $cookie_file_location);
 
 # DEFINE METHOD CONSTANTS
 define("HEAD", "HEAD");
@@ -122,6 +123,42 @@ function http_get($target, $ref)
     {
     return http($target, $ref, $method="GET", $data_array="", EXCL_HEAD);
     }
+
+/***********************************************************************
+function http_get_withheader_suffixcheck($target, $ref)                                        
+-------------------------------------------------------------           
+DESCRIPTION:                                                            
+        Downloads an ASCII file with the http header. If the file has
+        a known filetype that we cannot handle, instead return an error.
+INPUT:                                                                  
+        $target       The target file (to download)                     
+        $ref          The server referer variable                       
+OUTPUT:                                                                 
+        $return_array['FILE']   = Contents of fetched file, will also   
+                                 include the HTTP header if requested.
+                                 "" if file not fetched.   
+        $return_array['STATUS'] = CURL generated status of transfer.
+                                 "" if file not fetched.
+        $return_array['ERROR']  = CURL generated error status           
+***********************************************************************/
+function http_get_withheader_suffixcheck($target, $ref)
+    {
+    foreach ($excludedextensions as $dotext)
+        {
+        if ($dotext == substr($target, -(strlen($dotext)))
+            {
+            # Create return array
+            $return_array['FILE'] = "";
+            $return_array['STATUS'] = "";
+            $return_array['ERROR']  = "File extension on prohibited list.";
+            # Return results
+            return $return_array;
+            }
+        }
+
+    return http($target, $ref, $method="GET", $data_array="", INCL_HEAD);
+    }
+
 
 /***********************************************************************
 http_get_withheader($target, $ref)                                      
@@ -248,10 +285,18 @@ RETURNS:
 ***********************************************************************/
 function http($target, $ref, $method, $data_array, $incl_head)
 	{
+    # XXX TODO: Run and test for 406 responses on otherwise acceptable
+    #           downloads, as a result of the Accepts: header. This may
+    #           well have a neglible effect: I understand many servers
+    #           ignore it.
+    # XXX TODO: Run and test for 206 and 416 responses from Range: header.
+    # XXX TODO: Setup callback on HEAD to cancel download if given a
+    #           content-type we can't handle 
+
     # Initialize PHP/CURL handle
 	$ch = curl_init();
 
-    # Prcess data, if presented
+    # Process data, if presented
     if(is_array($data_array))
         {
 	    # Convert data array into a query string (ie animal=dog&sport=baseball)
@@ -268,7 +313,7 @@ function http($target, $ref, $method, $data_array, $incl_head)
     # HEAD method configuration
     if($method == HEAD)
         {
-    	curl_setopt($ch, CURLOPT_HEADER, TRUE);                // No http head
+	    curl_setopt($ch, CURLOPT_HEADER, TRUE);                // No http head
 	    curl_setopt($ch, CURLOPT_NOBODY, TRUE);                // Return body
         }
     else
@@ -289,7 +334,7 @@ function http($target, $ref, $method, $data_array, $incl_head)
             curl_setopt ($ch, CURLOPT_POST, TRUE); 
             curl_setopt ($ch, CURLOPT_HTTPGET, FALSE); 
             }
-    	curl_setopt($ch, CURLOPT_HEADER, $incl_head);   // Include head as needed
+            curl_setopt($ch, CURLOPT_HEADER, $incl_head);   // Include head as needed
 	    curl_setopt($ch, CURLOPT_NOBODY, FALSE);        // Return body
         }
         
@@ -304,7 +349,11 @@ function http($target, $ref, $method, $data_array, $incl_head)
 	curl_setopt($ch, CURLOPT_FOLLOWLOCATION, TRUE);     // Follow redirects
 	curl_setopt($ch, CURLOPT_MAXREDIRS, 4);             // Limit redirections to four
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);     // Return in string
-    
+	curl_setopt($ch, CURLOPT_HEADERFUNCTION, 'read_header'); // Callback function
+	curl_setopt($ch, CURLOPT_HTTPHEADER,array('accept: text/*'); // Ask for text only
+	if ($fetchrangeonly == true)
+	    curl_setopt($ch, CURLOPT_RANGE, "0-".strval($maxfetchsize-1); // Size limit
+
     # Create return array
     $return_array['FILE']   = curl_exec($ch); 
     $return_array['STATUS'] = curl_getinfo($ch);
@@ -316,4 +365,40 @@ function http($target, $ref, $method, $data_array, $incl_head)
     # Return results
   	return $return_array;
     }
+
+# Check if we're being given a file which is too large, or which is
+# in a non-text format we can't read.
+# This callback function is given the header one line at a time.
+# Hilariously, the way to return an error (and abort the transfer)
+# is to return anything other than the length of $string.
+# XXX TODO: Check that this hasn't eaten the headers, stopping them
+#           being returned as part of the content array.
+function read_header($ch, $string)
+    {
+    $length = strlen($string);
+    # echo "Header: $string<br />\n";
+    # XXX check http_parse_headers library is valid here. Otherwise, unpack from source
+    $headerarray = http_parse_headers($string)
+    if (array_key_exists('Content-Type', $headerarray))
+        {
+            if (preg_match( '/text\//', $headerarray['Content-Type']) == 0)
+                {
+                    print "Content-Type not text/*. Aborting fetch.";
+                    # Abort fetch
+                    return FALSE;
+                }
+        }
+    if (array_key_exists('Content-Length', $headerarray))
+        {
+            if ($headerarray['Content-Length'] > $maxfetchsize)
+                {
+                    print "Content too large. Server ignoring Range:? Aborting fetch.";
+                    # Abort fetch
+                    return FALSE;
+                }
+        }
+    # Continue with fetch
+    return $length;
+    }
+
 ?>
