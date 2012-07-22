@@ -81,14 +81,15 @@ Webbot defaults (scope = global)
 # Define how your webbot will appear in server logs
 #define("WEBBOT_NAME", "Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/532.5 (KHTML, like Gecko) Chrome/4.0.249.43 Safari/532.5");
 
-define("WEBBOT_NAME", "Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.0.18) Gecko/2010021501 Ubuntu/8.04 (hardy) Firefox/3.0.18");
+#define("WEBBOT_NAME", "Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.0.18) Gecko/2010021501 Ubuntu/8.04 (hardy) Firefox/3.0.18");
 
+define("WEBBOT_NAME", $user_agent);
 
 # Length of time cURL will wait for a response (seconds)
 define("CURL_TIMEOUT", 250);
 
 # Location of your cookie file. (Must be fully resolved local address)
-define("COOKIE_FILE", "/home/oxlab/cookies.txt");
+define("COOKIE_FILE", $cookie_file_location);
 
 # DEFINE METHOD CONSTANTS
 define("HEAD", "HEAD");
@@ -251,7 +252,7 @@ function http($target, $ref, $method, $data_array, $incl_head)
     # Initialize PHP/CURL handle
 	$ch = curl_init();
 
-    # Prcess data, if presented
+    # Process data, if presented
     if(is_array($data_array))
         {
 	    # Convert data array into a query string (ie animal=dog&sport=baseball)
@@ -268,7 +269,7 @@ function http($target, $ref, $method, $data_array, $incl_head)
     # HEAD method configuration
     if($method == HEAD)
         {
-    	curl_setopt($ch, CURLOPT_HEADER, TRUE);                // No http head
+	    curl_setopt($ch, CURLOPT_HEADER, TRUE);                // No http head
 	    curl_setopt($ch, CURLOPT_NOBODY, TRUE);                // Return body
         }
     else

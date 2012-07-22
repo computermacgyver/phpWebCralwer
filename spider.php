@@ -4,25 +4,25 @@ date_default_timezone_set('Europe/London');
 
 # Initialization
 
-include_once("CONFIG_db.php");						//Include configuration (do this first)
+include_once("CONFIG_db.php");			//Include configuration (do this first)
 
-include_once("LIB_http.php");                        // http library
-include_once("LIB_parse.php");                       // parse library
-include_once("LIB_resolve_addresses.php");           // address resolution library
-include_once("LIB_exclusion_list.php");              // list of excluded keywords
-include_once("LIB_simple_spider.php");               // spider routines used by this app.
+include_once("LIB_http.php");			// http library
+include_once("LIB_parse.php");			// parse library
+include_once("LIB_resolve_addresses.php");	// address resolution library
+include_once("LIB_exclusion_list.php");		// list of excluded keywords
+include_once("LIB_simple_spider.php");		// spider routines used by this app.
 include_once("LIB_db_functions.php");
 include_once("LIB_encoding.php");
 
 
-set_time_limit(0);                           // Don't let PHP timeout
+set_time_limit(0);				// Don't let PHP timeout
 
 db_connect();
 
 $seed = db_get_next_to_process();
 while ($seed!=Null) {
 
-	$SEED_URL        = $seed["strURL"];    // First URL spider downloads
+	$SEED_URL        = $seed["strURL"];	// First URL spider downloads
 	#$START_PENETRATION = seed['iLevel'];
 
 	# Get links from $SEED_URL
