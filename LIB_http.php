@@ -135,13 +135,27 @@ INPUT:
         $ref          The server referer variable                       
 OUTPUT:                                                                 
         $return_array['FILE']   = Contents of fetched file, will also   
-                                 include the HTTP header if requested   
-        $return_array['STATUS'] = CURL generated status of transfer     
+                                 include the HTTP header if requested.
+                                 "" if file not fetched.   
+        $return_array['STATUS'] = CURL generated status of transfer.
+                                 "" if file not fetched.
         $return_array['ERROR']  = CURL generated error status           
 ***********************************************************************/
 function http_get_withheader_suffixcheck($target, $ref)
     {
-    # XXX TODO: Implement
+    foreach ($excludedextensions as $dotext)
+        {
+        if ($dotext == substr($target, -(strlen($dotext)))
+            {
+            # Create return array
+            $return_array['FILE'] = "";
+            $return_array['STATUS'] = "";
+            $return_array['ERROR']  = "File extension on prohibited list.";
+            # Return results
+            return $return_array;
+            }
+        }
+
     return http($target, $ref, $method="GET", $data_array="", INCL_HEAD);
     }
 
@@ -320,7 +334,7 @@ function http($target, $ref, $method, $data_array, $incl_head)
             curl_setopt ($ch, CURLOPT_POST, TRUE); 
             curl_setopt ($ch, CURLOPT_HTTPGET, FALSE); 
             }
-    	curl_setopt($ch, CURLOPT_HEADER, $incl_head);   // Include head as needed
+            curl_setopt($ch, CURLOPT_HEADER, $incl_head);   // Include head as needed
 	    curl_setopt($ch, CURLOPT_NOBODY, FALSE);        // Return body
         }
         

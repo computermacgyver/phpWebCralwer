@@ -45,6 +45,8 @@ while ($seed!=Null) {
 			$strURL = $seed["strURL"];
 			if (exclude_link($seed["strURL"])) throw new Exception("Page in excluded list: $strURL\n");
 			$downloaded_page = http_get_withheader_suffixcheck($seed["strURL"], "");
+			# Catch fetch errors, oversize files, non-text extensions etc.
+			if ($downloaded_page['ERROR'] !== '') throw new Exception("Error fetching page: {$downloaded_page['ERROR']}");
 			$content_type=$downloaded_page['STATUS']['content_type'];
 			$strStatus=$downloaded_page['STATUS'];
 			$code=$strStatus["http_code"];
