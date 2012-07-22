@@ -271,10 +271,11 @@ RETURNS:
 ***********************************************************************/
 function http($target, $ref, $method, $data_array, $incl_head)
 	{
-    # XXX TODO: Send Accept: header for text/*, run and test for 406 responses
-    #           on otherwise acceptable downloads.
-    # XXX TODO: Send Range:bytes=0-99999 header, run and test for 206 and 416
-    #           responses.
+    # XXX TODO: Run and test for 406 responses on otherwise acceptable
+    #           downloads, as a result of the Accepts: header. This may
+    #           well have a neglible effect: I understand many servers
+    #           ignore it.
+    # XXX TODO: Run and test for 206 and 416 responses from Range: header.
     # XXX TODO: Setup callback on HEAD to cancel download if given a
     #           content-type we can't handle 
 
@@ -334,7 +335,10 @@ function http($target, $ref, $method, $data_array, $incl_head)
 	curl_setopt($ch, CURLOPT_FOLLOWLOCATION, TRUE);     // Follow redirects
 	curl_setopt($ch, CURLOPT_MAXREDIRS, 4);             // Limit redirections to four
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);     // Return in string
-    
+	curl_setopt($ch,CURLOPT_HTTPHEADER,array('accept: text/*'); // Ask for text only
+	if ($fetchrangeonly == true)
+	    curl_setopt($ch, CURLOPT_RANGE, "0-99999");     // Size limit
+
     # Create return array
     $return_array['FILE']   = curl_exec($ch); 
     $return_array['STATUS'] = curl_getinfo($ch);
