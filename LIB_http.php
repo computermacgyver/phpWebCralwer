@@ -125,6 +125,28 @@ function http_get($target, $ref)
     }
 
 /***********************************************************************
+function http_get_withheader_suffixcheck($target, $ref)                                        
+-------------------------------------------------------------           
+DESCRIPTION:                                                            
+        Downloads an ASCII file with the http header. If the file has
+        a known filetype that we cannot handle, instead return an error.
+INPUT:                                                                  
+        $target       The target file (to download)                     
+        $ref          The server referer variable                       
+OUTPUT:                                                                 
+        $return_array['FILE']   = Contents of fetched file, will also   
+                                 include the HTTP header if requested   
+        $return_array['STATUS'] = CURL generated status of transfer     
+        $return_array['ERROR']  = CURL generated error status           
+***********************************************************************/
+function http_get_withheader_suffixcheck($target, $ref)
+    {
+    # XXX TODO: Implement
+    return http($target, $ref, $method="GET", $data_array="", INCL_HEAD);
+    }
+
+
+/***********************************************************************
 http_get_withheader($target, $ref)                                      
 -------------------------------------------------------------           
 DESCRIPTION:                                                            
@@ -249,6 +271,13 @@ RETURNS:
 ***********************************************************************/
 function http($target, $ref, $method, $data_array, $incl_head)
 	{
+    # XXX TODO: Send Accept: header for text/*, run and test for 406 responses
+    #           on otherwise acceptable downloads.
+    # XXX TODO: Send Range:bytes=0-99999 header, run and test for 206 and 416
+    #           responses.
+    # XXX TODO: Setup callback on HEAD to cancel download if given a
+    #           content-type we can't handle 
+
     # Initialize PHP/CURL handle
 	$ch = curl_init();
 
