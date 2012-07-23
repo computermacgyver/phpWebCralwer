@@ -8,6 +8,4 @@ database server, name and password, as well as various other global options.
 An example file is included.
 
 TODO:
-* Separate domain into its own db table.
-* Set up per-domain timers, to allow local, not global, rate limit.
-
+* Interface the Public Suffix List, to get correct domains parsed for domains table
