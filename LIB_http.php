@@ -125,42 +125,6 @@ function http_get($target, $ref)
     }
 
 /***********************************************************************
-function http_get_withheader_suffixcheck($target, $ref)                                        
--------------------------------------------------------------           
-DESCRIPTION:                                                            
-        Downloads an ASCII file with the http header. If the file has
-        a known filetype that we cannot handle, instead return an error.
-INPUT:                                                                  
-        $target       The target file (to download)                     
-        $ref          The server referer variable                       
-OUTPUT:                                                                 
-        $return_array['FILE']   = Contents of fetched file, will also   
-                                 include the HTTP header if requested.
-                                 "" if file not fetched.   
-        $return_array['STATUS'] = CURL generated status of transfer.
-                                 "" if file not fetched.
-        $return_array['ERROR']  = CURL generated error status           
-***********************************************************************/
-function http_get_withheader_suffixcheck($target, $ref)
-    {
-    foreach ($excludedextensions as $dotext)
-        {
-        if ($dotext == substr($target, -(strlen($dotext))))
-            {
-            # Create return array
-            $return_array['FILE'] = "";
-            $return_array['STATUS'] = "";
-            $return_array['ERROR']  = "File extension on prohibited list.";
-            # Return results
-            return $return_array;
-            }
-        }
-
-    return http($target, $ref, $method="GET", $data_array="", INCL_HEAD);
-    }
-
-
-/***********************************************************************
 http_get_withheader($target, $ref)                                      
 -------------------------------------------------------------           
 DESCRIPTION:                                                            

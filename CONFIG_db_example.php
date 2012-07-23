@@ -26,8 +26,6 @@ $whitelistdomainlist=":gov.uk:.org.uk:";
 $fetchrangeonly=true;
 // If $fetchrangeonly=true, what range to fetch? Here, the first 100KB is specified.
 $maxfetchsize=100000;
-// Exclude these file extensions from being fetched:
-$excludedextensions = array(".avi", ".mp4", ".mp3", ".wma", ".wmv", ".ogg", ".pdf", ".doc", ".xls", ".docx", ".xlsx", ".ppt", ".pptx", ".odt", ".ods", ".odp", ".flv");
 
 // Set spider penetration depth. If 0 crawl only pages in database.
 $MAX_PENETRATION = 5;                           

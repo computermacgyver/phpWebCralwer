@@ -44,7 +44,7 @@ while ($seed!=NULL) {
 		try {
 			$strURL = $seed["strURL"];
 			if (exclude_link($seed["strURL"])) throw new Exception("Page in excluded list: $strURL\n");
-			$downloaded_page = http_get_withheader_suffixcheck($seed["strURL"], "");
+			$downloaded_page = http_get_withheader($seed["strURL"], "");
 			# Catch fetch errors, oversize files, non-text extensions etc.
 			if ($downloaded_page['ERROR'] !== '') throw new Exception("Error fetching page: {$downloaded_page['ERROR']}");
 			$content_type=$downloaded_page['STATUS']['content_type'];
@@ -110,11 +110,6 @@ while ($seed!=NULL) {
 	}
 
 	db_marked_harvested($seed);
-
-	echo "Pause...\n";
-
-	$wait = mt_rand(9000000,11000000);#9 to 11 seconds
-	usleep($wait); #(arg in microseconds)
 
 	$seed = db_get_next_to_harvest();
 }

@@ -15,7 +15,6 @@ $exclusion_array[] = "/\.xlsx\b/i";
 $exclusion_array[] = "/\.zip\b/i";
 $exclusion_array[] = "/\.tar\b/i";
 $exclusion_array[] = "/\.tar.gz\b/i";
-$exclusion_array[] = "/\.xml\b/i";
 $exclusion_array[] = "/\.flv\b/i";
 $exclusion_array[] = "/\.avi\b/i";
 $exclusion_array[] = "/\.wav\b/i";
