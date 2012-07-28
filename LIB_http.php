@@ -315,7 +315,9 @@ function http($target, $ref, $method, $data_array, $incl_head)
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);     // Return in string
 	curl_setopt($ch, CURLOPT_HEADERFUNCTION, 'read_header'); // Callback function
 	curl_setopt($ch, CURLOPT_HTTPHEADER,array('accept: text/*')); // Ask for text only
-	if ($fetchrangeonly == true)
+	
+	global $fetchrangeonly,$maxfetchsize;
+	if ($fetchrangeonly === true)
 	    curl_setopt($ch, CURLOPT_RANGE, "0-".strval($maxfetchsize-1)); // Size limit
 
     # Create return array
@@ -330,6 +332,24 @@ function http($target, $ref, $method, $data_array, $incl_head)
   	return $return_array;
     }
 
+
+function http_parse_headers( $header )
+{
+    $retVal = array();
+    $fields = explode("\r\n", preg_replace('/\x0D\x0A[\x09\x20]+/', ' ', $header));
+    foreach( $fields as $field ) {
+        if( preg_match('/([^:]+): (.+)/m', $field, $match) ) {
+            $match[1] = preg_replace('/(?<=^|[\x09\x20\x2D])./e', 'strtoupper("\0")', strtolower(trim($match[1])));
+            if( isset($retVal[$match[1]]) ) {
+                $retVal[$match[1]] = array($retVal[$match[1]], $match[2]);
+            } else {
+                $retVal[$match[1]] = trim($match[2]);
+            }
+        }
+    }
+    return $retVal;
+}
+
 # Check if we're being given a file which is too large, or which is
 # in a non-text format we can't read.
 # This callback function is given the header one line at a time.
@@ -339,6 +359,8 @@ function http($target, $ref, $method, $data_array, $incl_head)
 #           being returned as part of the content array.
 function read_header($ch, $string)
     {
+    global $maxfetchsize;
+    
     $length = strlen($string);
     # echo "Header: $string<br />\n";
     # XXX check http_parse_headers library is valid here. Otherwise, unpack from source

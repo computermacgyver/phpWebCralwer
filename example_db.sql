@@ -8,7 +8,7 @@ CREATE TABLE `tblDomains` (
   `dtLastAccessed` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`iDomainID`),
   UNIQUE KEY `strDomain_UNIQUE` (`strDomain`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `tblLinks` (
   `iLinkID` int(11) NOT NULL AUTO_INCREMENT,
@@ -22,16 +22,16 @@ CREATE TABLE `tblLinks` (
   KEY `fkParentID` (`fkParentID`),
   KEY `fkChildID` (`fkChildID`),
   KEY `Joint` (`fkParentID`,`fkChildID`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 CREATE TABLE `tblPages` (
   `iPageID` int(11) NOT NULL AUTO_INCREMENT,
   `strURL` varchar(255) NOT NULL,
   `strDomain` varchar(255) DEFAULT NULL,
   `strCleanURL` varchar(255) DEFAULT NULL,
-  `iLevel` int(11) NOT NULL,
-  `fkDomainID` int(11) NOT NULL,
-  `fkQueryID` int(11) DEFAULT NULL,
+  `iLevel` int(11) NOT NULL DEFAULT 0,
+/*  `fkDomainID` int(11) NOT NULL,*/
+  `fkQueryID` int(11) DEFAULT 0,
   `strHTML` longtext,
   `strHeader` text,
   `dtDays` int(11) DEFAULT NULL,
@@ -39,6 +39,6 @@ CREATE TABLE `tblPages` (
   `bolHarvested` tinyint(1) NOT NULL DEFAULT '0',
   `bolExclude` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`iPageID`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 

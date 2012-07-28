@@ -98,7 +98,7 @@ function db_get_next_to_harvest() {
 	}
 	
 	//If we get here we do have a page to return and it is from a different domain or if from the same domain we have waited appropriately
-	
+	echo "Have page with id " . $result['iPageID'] . " about to update/insert tblDoamins\n";
 	//is it in the domain table?
 	if ($result['dtLastAccessed']==NULL) {
 		//no. insert it
@@ -106,7 +106,7 @@ function db_get_next_to_harvest() {
 	} else {
 		$strUpdate = "UPDATE tblDomains SET dtLastAccessed=CURRENT_TIMESTAMP WHERE strDomain='" . $result['strDomain'] . "'";
 	}
-	print "$strUpdate\n";
+	//print "$strUpdate\n";
 	db_run_query($strUpdate);
 	
 	//Housekeeping done, ready to return result
@@ -164,6 +164,7 @@ function db_store_html($seed,$strHTML,$strURL) {/*!! TODO: Encoding Issues, pull
 
 
 function db_store_link($seed,$link) {
+	global $SAME_DOMAIN_FETCH_LEVEL;
 	echo "db_store_link($seed,$link)\n";
 	#check if in tblPages
 	#if not, store
@@ -177,13 +178,13 @@ function db_store_link($seed,$link) {
 	$link=html_entity_decode($link);
 	$cleanUrl=clean_url($link);
 	$cleanUrl=mysql_real_escape_string($cleanUrl);
+	$domain = get_domain_part($link,$SAME_DOMAIN_FETCH_LEVEL);
 	$link=mysql_real_escape_string($link);
 	$strSQL="SELECT iPageID FROM tblPages WHERE strCleanURL='" . $cleanUrl . "'";
 	$page_id = db_run_select($strSQL,true);
 	if ($page_id==NULL) {
-		$strSQL="INSERT INTO tblPages(fkQueryID,strURL,strCleanURL,iLevel) VALUES (" .
-			$seed["fkQueryID"] . ",'" . $link . "','" .$cleanUrl . "'," .
-			($seed["iLevel"]+1) .")";
+		$strSQL="INSERT INTO tblPages(fkQueryID,strURL,strCleanURL,iLevel,strDomain) VALUES (" .
+			$seed["fkQueryID"] . ",'$link','$cleanUrl'," . ($seed["iLevel"]+1) .",'$domain')";
 		db_run_query($strSQL);
 		$strSQL="SELECT iPageID FROM tblPages WHERE strCleanURL='" . $cleanUrl . "'";
 		$page_id = db_run_select($strSQL,true);
@@ -209,7 +210,7 @@ function db_store_link($seed,$link) {
 
 
 function db_store_link_internal_only($seed,$link) {
-	//echo "db_store_link_internal_only($seed,$link)\n";
+	echo "db_store_link_internal_only($seed,$link)\n";
 	#check if in tblPages
 	#if not, store
 	#get unique id, tblPages.iPageID

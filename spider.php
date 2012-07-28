@@ -19,6 +19,39 @@ set_time_limit(0);				// Don't let PHP timeout
 
 db_connect();
 
+//Before starting, check the domains fields of the database and fill in any missing entries
+//Also fill in missing 
+$strSQL="SELECT * FROM tblPages WHERE strDomain IS NULL OR strDomain='' OR strCleanURL IS NULL  OR strCleanURL=''";
+$result = mysql_query($strSQL,$GLOBALS["db"]) or die('Query failed: ' . mysql_error());
+while (null!=($row = mysql_fetch_array($result, MYSQL_ASSOC))) {
+	$url=$row['strURL'];
+	if ($row['strDomain']!=null && $row['strDomain']!='') {
+		$domain = false;//$row['strDomain'];
+	} else {
+		$domain = get_domain_part($url,$SAME_DOMAIN_FETCH_LEVEL);
+	}
+	
+	if ($row['strCleanURL']!=null && $row['strCleanURL']!='') {
+		$cleanURL = false;//$row['strCleanURL'];
+	} else {
+		$cleanURL = clean_url($url);
+	}
+	
+	$pageID=$row["iPageID"];
+	$strSQL="UPDATE tblPages SET ";
+	
+	if ($domain===false && $cleanURL===false) {
+		die("Assert failes: neither domain nor clean url in need of updating");
+	}
+	if ($domain!==false) $strSQL.="strDomain='$domain' ";
+	if ($domain!==false && $cleanURL!==false) $strSQL.=", ";
+	if ($cleanURL!==false) $strSQL.="strCleanURL='$cleanURL' ";
+	$strSQL.=" WHERE iPageID=$pageID";
+	db_run_query($strSQL);
+}
+
+//die("Preparation done.\n");
+
 $seed = db_get_next_to_harvest();
 while ($seed!=NULL) {
 
@@ -26,7 +59,7 @@ while ($seed!=NULL) {
 	#$START_PENETRATION = seed['iLevel'];
 
 	# Get links from $SEED_URL
-	echo "(forward) Harvesting Seed " . $seed["iPageID"] . "; URL   " . $seed["strURL"] . "\n"; 
+	echo "Harvesting Seed " . $seed["iPageID"] . "; URL   " . $seed["strURL"] . "\n"; 
 
 	#$link_array = array();
 
@@ -50,9 +83,10 @@ while ($seed!=NULL) {
 			$content_type=$downloaded_page['STATUS']['content_type'];
 			$strStatus=$downloaded_page['STATUS'];
 			$code=$strStatus["http_code"];
-			if ($code!=200 || strpos(strtolower($content_type),"text")===false) {
+			if (($code!=200 && $code!=206) || strpos(strtolower($content_type),"text")===false) {
+				//200 is OK, 206 is partial content
 				print "Skipping....http_code is $code content_type is $content_type\n";
-				db_marked_processed($seed);
+				db_marked_harvested($seed);
 				$seed = db_get_next_to_harvest();
 				continue;
 			}
@@ -81,19 +115,17 @@ while ($seed!=NULL) {
 		}*/
 	/*End insert*/
 
-
-	/*INSERT Encoding*/
-	//Moved to store_html function
-	/*END Encoding*/
 	echo "Parsing....\n";
-	$anchor_tags = parse_array($strHTML, "<a", "</a>", EXCL);
+	$anchor_tags = parse_array($strHTML, "<a ", "</a>", EXCL);
 	# Put http attributes for each tag into an array
 	for($xx=0; $xx<count($anchor_tags); $xx++) {
+		//print "tags : ". $anchor_tags[$xx]. "\n";
 		$href = get_attribute($anchor_tags[$xx], "href");
+		//print "href = $href , page_base = $page_base \n";
+		if ($href===false) continue;
 		$resolved_address = resolve_address($href, $page_base);
-		#echo "have address: $resolved_address\n";
+		//echo "have address: $resolved_address\n";
 		if (!exclude_link($resolved_address)) {
-			#$link_array[] = $resolved_addres;
 			try {
 				if ($MAX_PENETRATION==0)//crawl only links in db
 					db_store_link_internal_only($seed,$resolved_address);
@@ -102,7 +134,7 @@ while ($seed!=NULL) {
 			} catch(Exception $e) {
 				echo "***ERROR***\n";
 				echo "Couldn't store: $resolved_address\n";
-				echo "While processing: $SEED_URL\n";
+				echo "While harvesting: $SEED_URL\n";
 				//ignore
 			}
 		}
@@ -116,45 +148,5 @@ while ($seed!=NULL) {
 db_close();
 echo "Done.\n";
 
-#link_array now has all off-site links from SEED pagehttps://www.facebook.com/pages/Clapham-Adventure/407825022594984
-#insert into database
-#for ($xx=0; $xx<length($link_array); $xx++) {
-	#store new page returns unique id for url
-	#also checks if url already exists, and if so just inserts  
-#	page_id = store_new_page($seed, $link_array[$xx]); 
-#	store_link($seed,page_id)
-#$spider_array = archive_links($spider_array, 0, $link_array);
-
-#$link_array;
-#$temp_link_array = harvest_links($SEED_URL);
-
-
-
-# Spider links in remaining penetration levels
-#for($penetration_level=1; $penetration_level<=$MAX_PENETRATION; $penetration_level++)
-#    {
-#    $previous_level = $penetration_level - 1;
-#    for($xx=0; $xx<count($spider_array[$previous_level]); $xx++)
-#        {
-#        unset($temp_link_array);
-#        $temp_link_array = harvest_links($spider_array[$previous_level][$xx]);
-#        echo "Level=$penetration_level, xx=$xx of ".count($spider_array[$previous_level])." <br>\n"; 
-#        $spider_array = archive_links($spider_array, $penetration_level, $temp_link_array);
-#        }
-#    }
-
-# Store seed page HTML in Database
-
-# Store Links in Database
-#store_links($seed,$spider_array);
-#
-#for($penetration_level=1; $penetration_level<=$MAX_PENETRATION; $penetration_level++)
-#    {
-#    for($xx=0; $xx<count($spider_array[$previous_level]); $xx++)
-#        {
-#       download_images_for_page($spider_array[$previous_level][$xx]);
-#        }
-#    }
-#date_default_timezone_set('Europe/London');
 mail($operator_email, "Crawl Success", "Bot has  finished: " . date('Y-m-d H:i:s') ."\n","FROM: " . $operator_email);
 ?>

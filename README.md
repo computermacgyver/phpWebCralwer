@@ -9,3 +9,6 @@ An example file is included.
 
 TODO:
 * Interface the Public Suffix List, to get correct domains parsed for domains table
+
+Prerequisites
+* TidyHTML

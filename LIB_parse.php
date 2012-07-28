@@ -184,11 +184,14 @@ function get_attribute($tag, $attribute)
     $cleaned_html = str_replace("\r", "", $cleaned_html);   
     $cleaned_html = str_replace("\n", "", $cleaned_html);
     
+    //print "CLEANED: $cleaned_html \n";
+    
     # Use return_between() to find the properly quoted value for the attribute
     $t = return_between($cleaned_html, strtoupper($attribute)."=\"", "\"", EXCL);
     if (strlen($t)==0) {
 	$t=return_between($cleaned_html, strtoupper($attribute)."='", "'", EXCL);
     }
+    if (strlen($t)==0) $t=false;//SAH explicitly return false if not found
     return $t;
     }
 
@@ -226,8 +229,7 @@ INPUT:
 OUTPUT:                                                                 
         Returns a string of cleaned-up HTML                             
 ***********************************************************************/
-function tidy_html($input_string)
-    {
+function tidy_html($input_string) {
     // Detect if Tidy is in configured
     if( function_exists('tidy_get_release') )
         {
@@ -251,10 +253,11 @@ function tidy_html($input_string)
             $cleaned_html  = tidy_get_output($tidy);  
             }
         }
-    else
-        {
-        # Tidy not configured for this computer
-        $cleaned_html = $input_string;
-        }
-    return $cleaned_html;
-    }
+    else {
+		fprintf(STDERR,"FATAL: TidyHTML not found\n");//SAH
+		die("FATAL: TidyHTML not found\n");//SAH
+        //# Tidy not configured for this computer
+        //$cleaned_html = strtoupper($input_string); //Make it all uppercase (SAH)
+	}
+	return $cleaned_html;
+}

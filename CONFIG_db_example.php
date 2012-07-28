@@ -27,12 +27,19 @@ $fetchrangeonly=true;
 // If $fetchrangeonly=true, what range to fetch? Here, the first 100KB is specified.
 $maxfetchsize=100000;
 
-// Set spider penetration depth. If 0 crawl only pages in database.
+// Set spider penetration depth. 
+//If 0 crawl only pages in database. NOT IMPLEMETNED
+//If -1 ignore this parameter entirely: WARNING: Poorly configured sites may have an infinite number of URLs to crawl.
 $MAX_PENETRATION = 5;                           
-// Wait one second between page fetches
-$FETCH_DELAY     = 1;
-// Wait five seconds between page fetches on same domain (NOT IMPLEMENTED YET)
+
+// Wait one second between page fetches NOT IMPLEMENTED
+//$FETCH_DELAY     = 1;
+
+// Wait five seconds between page fetches on same domain
 $SAME_DOMAIN_FETCH_DELAY= 5;
+// What part of the domain should be matched to qualify for the SAME_DOMAIN_FETCH_DELAY?
+$SAME_DOMAIN_FETCH_LEVEL= 3;
+
 // Allow spider to roam from the SEED_URL's domain
 $ALLOW_OFFSITE   = true;                       
 // Only include URL's to remote domains

@@ -140,7 +140,7 @@ function get_port($url) {
     if (stristr($url,":")) {
 		$start=strpos($url,":");
 		$end=strpos($url,"/",$start);
-		echo "S=$start  END=$end\n";
+		//echo "S=$start  END=$end\n";
 		if ($end===false) return substr($url,$start+1);
 		return substr($url,$start+1,$end-1-$start);
 	} else {
@@ -230,9 +230,9 @@ function clean_url($url) {
 			//echo "$aKey == $aVal\n";
 			//if (strpos($aKey,"id")>0 || $aKey=="p" || $aKey=="post" || $aKey=="page" || $aKey=="v" ) {
 //Updated 2010-06-27
-if (strpos($aKey,"id")!==FALSE || $aKey=="p" || $aKey=="post" || $aKey=="page" || $aKey=="v"  || $aKey=="reference" || $aKey=="story" || $aKey=="s" || $aKey=="number" || $aKey=="doc" ) {
+if (strpos($aKey,"id")!==FALSE || $aKey=="p" || $aKey=="post" || $aKey=="page" || $aKey=="v"  || $aKey=="reference" || $aKey=="story" || $aKey=="s" || $aKey=="number" || $aKey=="doc" || $aKey=="lang" ) {
 				$url=$url . "?" . $aKey . "=" . $aVal;
-				break;
+				//break;
 			}
 		}
 	}
@@ -311,7 +311,7 @@ function exclude_link($link)
         global $whitelistdomain, $whitelistdomainlevel, $whitelistdomainlist;
       if ($whitelistdomain) {
 	     $domain =    get_domain_part($link,$whitelistdomainlevel);
-	     if (strpos($whitelistdomainlist,":".$domain.":")===false) {
+	     if (strpos($whitelistdomainlist,":$domain:")===false) {
 	     	$exclude=true;
 	     }
 	   }      
