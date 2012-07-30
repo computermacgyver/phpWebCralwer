@@ -142,7 +142,16 @@ while ($seed!=NULL) {
 	}
 
 	db_marked_harvested($seed);
-
+	
+	/*Safe zone:
+	This is where halting of the crawler should occur if at all
+	Check DB to see if flag has been left to stop*/
+	$strSQL="SELECT strValue FROM tblConfig WHERE strName='CrawlerStatus'";
+	$result = db_run_select($strSQL,true);
+	if ($result=="STOP") {
+		echo "***Receivend command to STOP\n. Stopping now; crawl is incomplete.\n";
+		break;
+	}
 	$seed = db_get_next_to_harvest();
 }
 db_close();

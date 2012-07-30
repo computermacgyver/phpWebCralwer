@@ -41,4 +41,13 @@ CREATE TABLE `tblPages` (
   PRIMARY KEY (`iPageID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
+CREATE TABLE `tblConfig` (
+  `strName` varchar(50) NOT NULL,
+  `strValue` varchar(50) NOT NULL,
+  PRIMARY KEY (`strName`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+INSERT INTO tblConfig (strName,strValue) VALUES ('CrawlerStatus','OK');
+/*Use 'CrawlerStatus','STOP' to  have crawler stop gracefully at the end of parsing the current page*/
+
 
