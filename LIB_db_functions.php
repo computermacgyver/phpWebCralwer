@@ -79,6 +79,7 @@ function db_get_next_to_harvest() {
 		" bolHarvested=0 ";
 	if ($MAX_PENETRATION!=-1) $strSQL.=" AND iLevel < " . $MAX_PENETRATION;
 	$strSQL .= " AND (ADDTIME(tblDomains.dtLastAccessed,'$SAME_DOMAIN_FETCH_DELAY')<CURRENT_TIMESTAMP OR tblDomains.dtLastAccessed IS NULL)";
+	$strSQL.=" ORDER BY tblDomains.dtLastAccessed";
 	$strSQL.=" LIMIT 1";
 	
 	//print "$strSQL\n";
@@ -165,7 +166,7 @@ function db_store_html($seed,$strHTML,$strURL) {/*!! TODO: Encoding Issues, pull
 
 function db_store_link($seed,$link) {
 	global $SAME_DOMAIN_FETCH_LEVEL;
-	echo "db_store_link($seed,$link)\n";
+	//echo "db_store_link($seed,$link)\n";
 	#check if in tblPages
 	#if not, store
 	#get unique id, tblPages.iPageID
@@ -210,7 +211,7 @@ function db_store_link($seed,$link) {
 
 
 function db_store_link_internal_only($seed,$link) {
-	echo "db_store_link_internal_only($seed,$link)\n";
+	//echo "db_store_link_internal_only($seed,$link)\n";
 	#check if in tblPages
 	#if not, store
 	#get unique id, tblPages.iPageID
