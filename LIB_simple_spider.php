@@ -38,6 +38,18 @@ documentation will at all times remain with copyright holders.
 ########################################################################                                        
 */
 
+//General initalization for whitelist
+global $whitelistdomain,$whitelistdomainlist,$whitelistdomainlist_arr,$whitelistdomainlist_part;
+if ($whitelistdomain) {
+	$whitelistdomainlist_arr=explode($whitelistdomainlist,":");
+	$whitelistdomainlist_part=":$whitelistdomainlist:";
+}
+
+
+
+
+
+
 /***********************************************************************
 harvest_links($url)                                                     
 -------------------------------------------------------------			
@@ -308,11 +320,22 @@ function exclude_link($link)
             $exclude=true;
             }
         }*/
-        global $whitelistdomain, $whitelistdomainlevel, $whitelistdomainlist;
+        global $whitelistdomain, $whitelistdomainlevel, $whitelistdomainlist,$whitelistdomainlist_arr,$whitelistdomainlist_part;
       if ($whitelistdomain) {
-	     $domain =    get_domain_part($link,$whitelistdomainlevel);
-	     if (strpos($whitelistdomainlist,":$domain:")===false) {
-	     	$exclude=true;
+      	 $domain = get_domain_part($link,$whitelistdomainlevel);
+      	 if ($whitelistdomainlevel==1) {//match any part
+      	 	$found=false;
+      	 	for ($x=0;$x<size($whitelistdomainlist_arr);$x++) {
+      	 		if (strpos($whitelistdomainlist_arr[$x],$domain)!==false) {
+      	 			$found=true;
+      	 			break;
+      	 		}
+      	 	}
+      	 	if ($found===false) $exclude=true;
+		 } else {
+			if (strpos($whitelistdomainlist_part,":$domain:")===false) {
+				$exclude=true;
+			}
 	     }
 	   }      
 

@@ -18,12 +18,12 @@ $cookie_file_location = "/home/jrandom/cookies.txt";
 
 //Restrict crawling to a whitelist? true | false
 $whitelistdomain=true;	
-//What level of domain to match (1=tld, 2=sld, etc. e.g. 1=uk, 2=gov.uk, 3=direct.gov.uk)
+//What level of domain to match (-1 any part, 1=tld, 2=sld, etc. e.g. 1=uk, 2=gov.uk, 3=direct.gov.uk)
 $whitelistdomainlevel=2; 
-//list of domains starting, ending, and separated with :
-$whitelistdomainlist=":gov.uk:.org.uk:";
-//Fetch only first part of each page, to avoid huge files?
-$fetchrangeonly=true;
+//list of domains separated with : (no starting / ending :)
+$whitelistdomainlist="gov.uk:org.uk";
+//Fetch only first part of each page, to avoid huge files? (Experimental!)
+$fetchrangeonly=false;
 // If $fetchrangeonly=true, what range to fetch? Here, the first 100KB is specified.
 $maxfetchsize=100000;
 
