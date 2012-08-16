@@ -41,7 +41,7 @@ documentation will at all times remain with copyright holders.
 //General initalization for whitelist
 global $whitelistdomain,$whitelistdomainlist,$whitelistdomainlist_arr,$whitelistdomainlist_part;
 if ($whitelistdomain) {
-	$whitelistdomainlist_arr=explode($whitelistdomainlist,":");
+	$whitelistdomainlist_arr=explode(":",$whitelistdomainlist);
 	$whitelistdomainlist_part=":$whitelistdomainlist:";
 }
 
@@ -322,17 +322,19 @@ function exclude_link($link)
         }*/
         global $whitelistdomain, $whitelistdomainlevel, $whitelistdomainlist,$whitelistdomainlist_arr,$whitelistdomainlist_part;
       if ($whitelistdomain) {
-      	 $domain = get_domain_part($link,$whitelistdomainlevel);
-      	 if ($whitelistdomainlevel==1) {//match any part
+      	 if ($whitelistdomainlevel==-1) {//match any part
+			$domain = get_domain($link);
       	 	$found=false;
-      	 	for ($x=0;$x<size($whitelistdomainlist_arr);$x++) {
-      	 		if (strpos($whitelistdomainlist_arr[$x],$domain)!==false) {
+      	 	#print $whitelistdomainlist_arr[0] . "\n$domain\n";
+      	 	for ($x=0;$x<count($whitelistdomainlist_arr);$x++) {
+      	 		if (strpos($domain,$whitelistdomainlist_arr[$x])!==false) {
       	 			$found=true;
       	 			break;
       	 		}
       	 	}
       	 	if ($found===false) $exclude=true;
 		 } else {
+			$domain = get_domain_part($link,$whitelistdomainlevel);
 			if (strpos($whitelistdomainlist_part,":$domain:")===false) {
 				$exclude=true;
 			}
