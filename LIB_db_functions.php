@@ -20,7 +20,9 @@ function /*public*/ db_connect() {
 		$GLOBALS["db"] = mysql_connect($db_host, $db_username, $db_password);
 		mysql_select_db($db_name,$GLOBALS["db"]);
 	} catch (Exception $e) {
+		global $operator_email;
 		fprintf(STDERR,"ERROR: db_connect().\n" . $e->getMessage() . "\n" . mysql_error() . "\n");	
+		mail($operator_email, "phpCrawler Error", "Could not connect to db: " . mysql_error() . "\n" . date('Y-m-d H:i:s') ."\n","FROM: " . $operator_email);
 		die("Could not connect: " . mysql_error());
 	}
 }
@@ -67,6 +69,7 @@ function /*private*/ db_run_query($strSQL) {
 	  echo "$strSQL\n" . $e->getMessage() ."\n"  . mysql_error();
 	}
 	if (!$result) {
+		global $operator_email;
 		print "ERROR: Query returned false:  $strSQL\n";
 		fprintf(STDERR,"ERROR: Query returned false.\n" . mysql_error() . "\n");
 		mail($operator_email, "phpCrawler Error", "Query returned false: " . mysql_error() . "\n" . date('Y-m-d H:i:s') ."\n","FROM: " . $operator_email);

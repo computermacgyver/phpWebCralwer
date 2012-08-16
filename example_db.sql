@@ -4,10 +4,9 @@
 
 CREATE TABLE `tblDomains` (
   `iDomainID` int(11) NOT NULL AUTO_INCREMENT,
-  `strDomain` varchar(128) DEFAULT NULL,
+  `strDomain` varchar(2048) DEFAULT NULL,
   `dtLastAccessed` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`iDomainID`),
-  UNIQUE KEY `strDomain_UNIQUE` (`strDomain`)
+  PRIMARY KEY (`iDomainID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `tblLinks` (
@@ -26,9 +25,9 @@ CREATE TABLE `tblLinks` (
 
 CREATE TABLE `tblPages` (
   `iPageID` int(11) NOT NULL AUTO_INCREMENT,
-  `strURL` varchar(255) NOT NULL,
-  `strDomain` varchar(255) DEFAULT NULL,
-  `strCleanURL` varchar(255) DEFAULT NULL,
+  `strURL` varchar(2048) NOT NULL,
+  `strDomain` varchar(2048) DEFAULT NULL,
+  `strCleanURL` varchar(2048) DEFAULT NULL,
   `iLevel` int(11) NOT NULL DEFAULT 0,
 /*  `fkDomainID` int(11) NOT NULL,*/
   `fkQueryID` int(11) DEFAULT 0,

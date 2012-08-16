@@ -41,6 +41,7 @@ while (null!=($row = mysql_fetch_array($result, MYSQL_ASSOC))) {
 	$strSQL="UPDATE tblPages SET ";
 	
 	if ($domain===false && $cleanURL===false) {
+		//Should never get here. If we do something strange with db config
 		die("Assert failes: neither domain nor clean url in need of updating");
 	}
 	if ($domain!==false) $strSQL.="strDomain='$domain' ";
