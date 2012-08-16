@@ -42,7 +42,7 @@ function /*private*/ db_run_select($strSQL,$returnVal=false) {
 	{
       fprintf(STDERR,"ERROR: db_run_select.\n" . $e->getMessage() . "\n" . mysql_error() . "\n");	
 	  echo "$strSQL\n" . $e->getMessage() ."\n"  . mysql_error();
-	  die()
+	  die();
 	}
 	
 	if (!$returnVal) {
