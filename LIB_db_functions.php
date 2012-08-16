@@ -16,9 +16,13 @@ include_once("CONFIG_db.php");
 
 function /*public*/ db_connect() {
 	global $db_host, $db_username, $db_password, $db_name;
-	$GLOBALS["db"] = mysql_connect($db_host, $db_username, $db_password) or
-	    die("Could not connect: " . mysql_error());
-	mysql_select_db($db_name,$GLOBALS["db"]);
+	try {
+		$GLOBALS["db"] = mysql_connect($db_host, $db_username, $db_password);
+		mysql_select_db($db_name,$GLOBALS["db"]);
+	} catch (Exception $e) {
+		fprintf(STDERR,"ERROR: db_connect().\n" . $e->getMessage() . "\n" . mysql_error() . "\n");	
+		die("Could not connect: " . mysql_error());
+	}
 }
 
 #db_get_next_spider_target();
@@ -30,10 +34,11 @@ function /*private*/ db_run_select($strSQL,$returnVal=false) {
 	mysql_select_db($db_name);
 	#echo $strSQL . "\n";	
 	try {
-		$result = mysql_query($strSQL,$GLOBALS["db"]) or die('Query failed: ' . mysql_error());
+		$result = mysql_query($strSQL,$GLOBALS["db"]);
 	}
 	catch(Exception $e)
 	{
+      fprintf(STDERR,"ERROR: db_run_select.\n" . $e->getMessage() . "\n" . mysql_error() . "\n");	
 	  echo "$strSQL\n" . $e->getMessage() ."\n"  . mysql_error();
 	}
 	
@@ -55,7 +60,7 @@ function /*private*/ db_run_query($strSQL) {
 	//mysql_select_db("DBNAME");
 	#echo $strSQL . "\n";
 	try {
-		$result = mysql_query($strSQL,$GLOBALS["db"]); #or die('Query failed: ' . mysql_error());
+		$result = mysql_query($strSQL,$GLOBALS["db"]);
 	}
 	catch(Exception $e)
 	{
@@ -64,6 +69,7 @@ function /*private*/ db_run_query($strSQL) {
 	if (!$result) {
 		print "ERROR: Query returned false:  $strSQL\n";
 		fprintf(STDERR,"ERROR: Query returned false.\n" . mysql_error() . "\n");
+		mail($operator_email, "phpCrawler Error", "Query returned false: " . mysql_error() . "\n" . date('Y-m-d H:i:s') ."\n","FROM: " . $operator_email);
 		throw new Exception("ERROR: Query returned false:  \n$strSQL\n\n\n");
 		#die("Query returned false:  $strSQL\n");
 	}

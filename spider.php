@@ -150,6 +150,7 @@ while ($seed!=NULL) {
 	$result = db_run_select($strSQL,true);
 	if ($result=="STOP") {
 		echo "***Receivend command to STOP\n. Stopping now; crawl is incomplete.\n";
+		mail($operator_email, "Crawl Stopped", "Bot stopped via DB Stop signal: " . date('Y-m-d H:i:s') ."\n","FROM: " . $operator_email);
 		break;
 	}
 	$seed = db_get_next_to_harvest();
