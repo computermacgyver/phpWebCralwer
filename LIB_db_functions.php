@@ -73,7 +73,7 @@ function /*private*/ db_run_query($strSQL) {
 		global $operator_email;
 		print "ERROR: Query returned false:  $strSQL\n";
 		fprintf(STDERR,"ERROR: Query returned false.\n" . mysql_error() . "\n");
-		mail($operator_email, "phpCrawler Error", "Query '$strSQL' returned false with error: " . mysql_error() . "\n" . date('Y-m-d H:i:s') ."\n","FROM: " . $operator_email);
+		mail($operator_email, "phpCrawler Error", "Query returned false with error: " . mysql_error() . "\n" . date('Y-m-d H:i:s') ."\nQuery was:\n$strSQL\n","FROM: " . $operator_email);
 		throw new Exception("ERROR: Query returned false:  \n$strSQL\n\n\n");
 		#die("Query returned false:  $strSQL\n");
 	}

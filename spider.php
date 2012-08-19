@@ -147,11 +147,13 @@ while ($seed!=NULL) {
 	/*Safe zone:
 	This is where halting of the crawler should occur if at all
 	Check DB to see if flag has been left to stop*/
+	$stop=false;
 	$strSQL="SELECT strValue FROM tblConfig WHERE strName='CrawlerStatus'";
 	$result = db_run_select($strSQL,true);
 	if ($result=="STOP") {
 		echo "***Receivend command to STOP\n. Stopping now; crawl is incomplete.\n";
 		mail($operator_email, "Crawl Stopped", "Bot stopped via DB Stop signal: " . date('Y-m-d H:i:s') ."\n","FROM: " . $operator_email);
+		$stop=true;
 		break;
 	}
 	$seed = db_get_next_to_harvest();
@@ -159,5 +161,7 @@ while ($seed!=NULL) {
 db_close();
 echo "Done.\n";
 
-mail($operator_email, "Crawl Success", "Bot has  finished: " . date('Y-m-d H:i:s') ."\n","FROM: " . $operator_email);
+if (!$stop) {
+	mail($operator_email, "Crawl Success", "Bot has  finished: " . date('Y-m-d H:i:s') ."\n","FROM: " . $operator_email);
+}
 ?>

@@ -31,6 +31,7 @@ if ($command=="STOP") {
 	print "Stopping crawler....";
 	db_run_query($strStopSQL);
 	print "OK\n";
+	print "Crawler should stop gracefully after current page\n";
 } else {
 	print "Updating status to OK....";
 	db_run_query($strOKSQL);
@@ -40,7 +41,5 @@ if ($command=="STOP") {
 print "Disconnecting....";
 db_close();
 print "OK\n";
-
-print "Crawler should stop gracefully after current page\n";
 
 ?>
