@@ -136,7 +136,7 @@ while ($seed!=NULL) {
 				echo "***ERROR***\n";
 				echo "Couldn't store: $resolved_address\n";
 				echo "While harvesting: $SEED_URL\n";
-				//ignore
+				break;//ignore any further links (to prevent multiple error messages for one page)
 			}
 		}
 		#echo "Harvested: ".$resolved_address." \n";
