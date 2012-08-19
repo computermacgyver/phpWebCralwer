@@ -2,6 +2,9 @@
 error_reporting( E_ALL );
 date_default_timezone_set('Europe/London');
 
+ini_set('mysql.connect_timeout', 300);
+ini_set('default_socket_timeout', 300);
+
 # Initialization
 
 include_once("CONFIG_db.php");			//Include configuration (do this first)

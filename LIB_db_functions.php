@@ -27,14 +27,19 @@ function /*public*/ db_connect() {
 	}
 }
 
+function /*private*/ db_check_connection() {
+	if( !mysql_ping($GLOBALS["db"]) ) db_connect();
+}
+
 #db_get_next_spider_target();
 #db_store_html($seed,$downloaded_page['FILE'])
 #db_store_link($seed,$resolved_address;
 
 function /*private*/ db_run_select($strSQL,$returnVal=false) {
-	global $db_name;
-	mysql_select_db($db_name);
+	/*global $db_name;
+	mysql_select_db($db_name);*/
 	#echo $strSQL . "\n";	
+	db_check_connection();
 	try {
 		$result = mysql_query($strSQL,$GLOBALS["db"]);
 	}
@@ -62,6 +67,7 @@ function /*private*/ db_run_select($strSQL,$returnVal=false) {
 function /*private*/ db_run_query($strSQL) {
 	//mysql_select_db("DBNAME");
 	#echo $strSQL . "\n";
+	db_check_connection();
 	try {
 		$result = mysql_query($strSQL,$GLOBALS["db"]);
 	}
