@@ -50,7 +50,9 @@ function /*private*/ db_run_select($strSQL,$returnVal=false) {
 	  die();
 	}
 	
-	if (!$returnVal) {
+	if (!$result) {
+		return null;
+	}elseif (!$returnVal) {
 		$row = mysql_fetch_array($result, MYSQL_ASSOC);
 		$output = $row;
 	} else  {

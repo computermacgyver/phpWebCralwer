@@ -34,10 +34,10 @@ while ($seed!=null) {
 	$atags = parse_array($html,"<a","</a>");
 	foreach ($atags as $tag) {
 		$destURL=get_attribute($tag,"href");
-		echo "destURL: $destURL\n";
+		//echo "destURL: $destURL\n";
 		if (strpos($destURL,"http://")!==false || strpos($destURL,"https://")!==false) {
 			$destDomain=get_domain($destURL);
-			echo "Saving To-From: $domain - $destDomain\n";
+			//echo "Saving To-From: $domain - $destDomain\n";
 			db_update_domain_links($domain,$destDomain);
 		}
 	}
