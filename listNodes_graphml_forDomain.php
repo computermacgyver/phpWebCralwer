@@ -35,7 +35,8 @@ $arrNodes=array();
 while ($record = mysql_fetch_array($result, MYSQL_ASSOC)) {
 	#echo "$counter \"" . $record["strURL"] . "\"\r\n";
 	$iPageID=$record["iPageID"];
-	echo "\t <node id=\"" . $record["strCleanURL"] ."\">\n";
+	$arrNodes[]=$iPageID;
+	echo "\t <node id=\"" . $iPageID ."\">\n";//$record["strCleanURL"]
 	echo "\t\t <data key=\"label\">". 
 		str_replace(array("&","'","\"","<",">"),
 			array("&amp;","&apos;","&quot;","&lt;","&gt;"),
@@ -51,7 +52,10 @@ mysql_free_result($result);
 #echo "*Arcs\r\n";
 #$strSQL="SELECT fkParentID, fkChildID, iNumberTimes FROM (tblLinks INNER JOIN tblPages as t ON tblLinks.fkChildID=t.iPageID) INNER JOIN tblPages ON tblLinks.fkParentID=tblPages.iPageID  WHERE NOT tblPages.bolExclude AND NOT t.bolExclude";
 
-$strSQL="SELECT tblPages.strCleanURL as fkParentID, t.strCleanURL as fkChildID, SUM(iNumberTimes) as iNumberTimes FROM (tblLinks INNER JOIN tblPages as t ON tblLinks.fkChildID=t.iPageID) INNER JOIN tblPages ON tblLinks.fkParentID=tblPages.iPageID  WHERE tblPages.bolCentral=1 AND t.bolCentral=1 AND NOT tblPages.bolExclude AND NOT t.bolExclude AND tblPages.strDomain='$strDomain' AND t.strDomain='$strDomain'";
+//$strSQL="SELECT tblPages.strCleanURL as fkParentID, t.strCleanURL as fkChildID, SUM(iNumberTimes) as iNumberTimes FROM (tblLinks INNER JOIN tblPages as t ON tblLinks.fkChildID=t.iPageID) INNER JOIN tblPages ON tblLinks.fkParentID=tblPages.iPageID  WHERE tblPages.bolCentral=1 AND t.bolCentral=1 AND NOT tblPages.bolExclude AND NOT t.bolExclude AND tblPages.strDomain='$strDomain' AND t.strDomain='$strDomain'";
+$nodeList=implode(",",$arrNodes);
+$strSQL="SELECT fkParentID, fkChildID, iNumberTimes FROM tblLinks WHERE fkParentID IN ($nodeList) AND fkChildID IN ($nodeList)";
+
 
 $result = mysql_query($strSQL);
 $counter=1;
