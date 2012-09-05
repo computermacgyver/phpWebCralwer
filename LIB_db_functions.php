@@ -272,3 +272,33 @@ function db_store_link_internal_only($seed,$link) {
 
 	return;
 }
+
+/*function db_mark_all_unprocessed() {
+	$strSQL="UPDATE tblPages SET bolProcessed=0";
+	db_run_query($strSQL);
+}*/
+
+function db_get_next_to_process() {
+	$strSQL = "SELECT * FROM tblPages WHERE bolProcessed=0 AND bolHarvested=1 AND bolCentral=1 LIMIT 1";
+	$seed=db_run_select($strSQL);
+	return $seed;
+}
+
+function db_marked_processed($seed) {
+	$strSQL = "UPDATE tblPages SET bolProcessed=1 WHERE iPageID=" . $seed["iPageID"];
+	db_run_query($strSQL);
+}
+
+
+
+function db_update_domain_links($strFromDomain,$strToDomain) {
+	$strSQL="SELECT iHostID,iCount FROM tblExternalHosts WHERE strFromDomain='$strFromDomain' AND $strToDomain='$strToDomain'";
+	$result=db_run_select($strSQL);
+	if ($result==NULL) {
+		$strSQL="INSERT INTO tblExternalHosts (strFromDomain,strToDomain,iCount) VALUES ('$strFromDomain','$strToDomain',1)";
+	} else {
+		$iCount=int($result['iCount'])+1;
+		$strSQL="UPDATE tblExternalHosts SET iCount=$iCount WHERE iHostID=".$result['iHostID'];
+	}
+	db_run_query($strSQL);
+}
