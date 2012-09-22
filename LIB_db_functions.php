@@ -205,7 +205,8 @@ function db_store_link($seed,$link) {
 		$strSQL="INSERT INTO tblPages(fkQueryID,strURL,strCleanURL,iLevel,strDomain) VALUES (" .
 			$seed["fkQueryID"] . ",'$link','$cleanUrl'," . ($seed["iLevel"]+1) .",'$domain')";
 		db_run_query($strSQL);
-		$strSQL="SELECT iPageID FROM tblPages WHERE strCleanURL='" . $cleanUrl . "'";
+		$strSQL="SELECT LAST_INSERT_ID();";//TODO: ONLY MYSQL?
+			//"SELECT iPageID FROM tblPages WHERE strCleanURL='" . $cleanUrl . "'";
 		$page_id = db_run_select($strSQL,true);
 	} else {
 		//check current level and give shorter level if possible?
