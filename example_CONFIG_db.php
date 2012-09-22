@@ -2,6 +2,10 @@
 
 global $db_host,$db_username,$db_name,$operator_email,$whitelistdomain,$whitelistdomainlevel,$whitelistdomainlist;
 
+//Is this the first time running the script or have database changes been made outside of the script?
+//If so, set this to true; leaving it at true will not hurt but will cause extra start-up time if the script is stopped and restarted.
+$first_run=true;
+
 $db_host = "localhost";
 $db_username = "jrandom";
 $db_password = "ASDF!!1!one1";

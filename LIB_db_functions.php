@@ -39,8 +39,8 @@ function /*private*/ db_run_select($strSQL,$returnVal=false) {
 	/*global $db_name;
 	mysql_select_db($db_name);*/
 	#echo $strSQL . "\n";	
-	db_check_connection();
 	try {
+		db_check_connection();
 		$result = mysql_query($strSQL,$GLOBALS["db"]);
 	}
 	catch(Exception $e)
@@ -69,8 +69,8 @@ function /*private*/ db_run_select($strSQL,$returnVal=false) {
 function /*private*/ db_run_query($strSQL) {
 	//mysql_select_db("DBNAME");
 	#echo $strSQL . "\n";
-	db_check_connection();
 	try {
+		db_check_connection();	
 		$result = mysql_query($strSQL,$GLOBALS["db"]);
 	}
 	catch(Exception $e)
@@ -211,7 +211,7 @@ function db_store_link($seed,$link) {
 		//check current level and give shorter level if possible?
 	}
 
-	$strSQL="SELECT iLinkID FROM tblLinks " .
+	/*$strSQL="SELECT iLinkID FROM tblLinks " .
 			"WHERE fkParentID=" . $seed["iPageID"] . " AND fkChildID=" . $page_id;
 	$link_id = db_run_select($strSQL,true);
 	if ($link_id==NULL) {
@@ -222,9 +222,9 @@ function db_store_link($seed,$link) {
 		//update
 		$strSQL="UPDATE tblLinks SET iNumberTimes=iNumberTimes+1 WHERE iLinkID=" . $link_id;
 		db_run_query($strSQL);	
-	}
+	}*/
 
-	return;
+	return "(" . 	$seed["iPageID"] . "," . $page_id . "," . $seed["fkQueryID"] . ",1)";
 }
 
 
@@ -259,20 +259,20 @@ function db_store_link_internal_only($seed,$link) {
 		//check current level and give shorter level if possible?
 	}
 
-	$strSQL="SELECT iLinkID FROM tblLinks " .
-			"WHERE fkParentID=" . $seed["iPageID"] . " AND fkChildID=" . $page_id;
-	$link_id = db_run_select($strSQL,true);
-	if ($link_id==NULL) {
+	//$strSQL="SELECT iLinkID FROM tblLinks " .
+	//		"WHERE fkParentID=" . $seed["iPageID"] . " AND fkChildID=" . $page_id;
+	//$link_id = db_run_select($strSQL,true);
+	//if ($link_id==NULL) {
 		$strSQL="INSERT INTO tblLinks(fkParentID,fkChildID,fkQueryID,iNumberTimes,iLevel) VALUES (" .
 			$seed["iPageID"] . "," . $page_id . "," . $seed["fkQueryID"] . ",1,1)";
 		db_run_query($strSQL);
-	} else {
+	//} else {
 		//update
 		#$strSQL="UPDATE tblLinks SET iNumberTimes=iNumberTimes+1 WHERE iLinkID=" . $link_id;
 		#db_run_query($strSQL);	
-	}
+	//}
 
-	return;
+	return "(" .$seed["iPageID"] . "," . $page_id . "," . $seed["fkQueryID"] . ",1,1)";
 }
 
 /*function db_mark_all_unprocessed() {

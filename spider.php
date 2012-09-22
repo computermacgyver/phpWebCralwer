@@ -22,39 +22,41 @@ set_time_limit(0);				// Don't let PHP timeout
 
 db_connect();
 
-//Before starting, check the domains fields of the database and fill in any missing entries
-//Also fill in missing 
-$strSQL="SELECT * FROM tblPages WHERE strDomain IS NULL OR strDomain='' OR strCleanURL IS NULL  OR strCleanURL=''";
-$result = mysql_query($strSQL,$GLOBALS["db"]) or die('Query failed: ' . mysql_error());
-while (null!=($row = mysql_fetch_array($result, MYSQL_ASSOC))) {
-	$url=$row['strURL'];
-	if ($row['strDomain']!=null && $row['strDomain']!='') {
-		$domain = false;//$row['strDomain'];
-	} else {
-		$domain = get_domain_part($url,$SAME_DOMAIN_FETCH_LEVEL);
-	}
+if ($first_run==true) {
+	//Before starting, check the domains fields of the database and fill in any missing entries
+	//Also fill in missing 
+	$strSQL="SELECT * FROM tblPages WHERE strDomain IS NULL OR strDomain='' OR strCleanURL IS NULL  OR strCleanURL=''";
+	$result = mysql_query($strSQL,$GLOBALS["db"]) or die('Query failed: ' . mysql_error());
+	while (null!=($row = mysql_fetch_array($result, MYSQL_ASSOC))) {
+		$url=$row['strURL'];
+		if ($row['strDomain']!=null && $row['strDomain']!='') {
+			$domain = false;//$row['strDomain'];
+		} else {
+			$domain = get_domain_part($url,$SAME_DOMAIN_FETCH_LEVEL);
+		}
 	
-	if ($row['strCleanURL']!=null && $row['strCleanURL']!='') {
-		$cleanURL = false;//$row['strCleanURL'];
-	} else {
-		$cleanURL = clean_url($url);
-	}
+		if ($row['strCleanURL']!=null && $row['strCleanURL']!='') {
+			$cleanURL = false;//$row['strCleanURL'];
+		} else {
+			$cleanURL = clean_url($url);
+		}
 	
-	$pageID=$row["iPageID"];
-	$strSQL="UPDATE tblPages SET ";
+		$pageID=$row["iPageID"];
+		$strSQL="UPDATE tblPages SET ";
 	
-	if ($domain===false && $cleanURL===false) {
-		//Should never get here. If we do something strange with db config
-		die("Assert failes: neither domain nor clean url in need of updating");
+		if ($domain===false && $cleanURL===false) {
+			//Should never get here. If we do something strange with db config
+			die("Assert failes: neither domain nor clean url in need of updating");
+		}
+		if ($domain!==false) $strSQL.="strDomain='$domain' ";
+		if ($domain!==false && $cleanURL!==false) $strSQL.=", ";
+		if ($cleanURL!==false) $strSQL.="strCleanURL='$cleanURL' ";
+		$strSQL.=" WHERE iPageID=$pageID";
+		db_run_query($strSQL);
 	}
-	if ($domain!==false) $strSQL.="strDomain='$domain' ";
-	if ($domain!==false && $cleanURL!==false) $strSQL.=", ";
-	if ($cleanURL!==false) $strSQL.="strCleanURL='$cleanURL' ";
-	$strSQL.=" WHERE iPageID=$pageID";
-	db_run_query($strSQL);
-}
 
-//die("Preparation done.\n");
+	//die("Preparation done.\n");
+}
 
 $seed = db_get_next_to_harvest();
 while ($seed!=NULL) {
@@ -122,6 +124,7 @@ while ($seed!=NULL) {
 	echo "Parsing....\n";
 	$anchor_tags = parse_array($strHTML, "<a ", "</a>", EXCL);
 	# Put http attributes for each tag into an array
+	$sqlQuery="INSERT INTO tblLinks(fkParentID,fkChildID,fkQueryID,iNumberTimes) VALUES ";
 	for($xx=0; $xx<count($anchor_tags); $xx++) {
 		//print "tags : ". $anchor_tags[$xx]. "\n";
 		$href = get_attribute($anchor_tags[$xx], "href");
@@ -131,10 +134,14 @@ while ($seed!=NULL) {
 		//echo "have address: $resolved_address\n";
 		if (!exclude_link($resolved_address)) {
 			try {
+				$out="";
 				if ($MAX_PENETRATION==0)//crawl only links in db
-					db_store_link_internal_only($seed,$resolved_address);
+					$out=db_store_link_internal_only($seed,$resolved_address);
 				else //grow crawl list (possibly in conjuction with white list)
-					db_store_link($seed,$resolved_address);
+					$out=db_store_link($seed,$resolved_address);
+
+				if ($out!="") {
+					$sqlQuery+=$out.","
 			} catch(Exception $e) {
 				echo "***ERROR***\n";
 				echo "Couldn't store: $resolved_address\n";
@@ -143,6 +150,11 @@ while ($seed!=NULL) {
 			}
 		}
 		#echo "Harvested: ".$resolved_address." \n";
+	}
+	
+	if ($sqlQuery!="") {
+		$sqlQuery=substr($sqlQuery,0,strlen($sqlQuery)-1);//trim last char
+		db_run_query($sqlQuery);//already in try-catch in function
 	}
 
 	db_marked_harvested($seed);
