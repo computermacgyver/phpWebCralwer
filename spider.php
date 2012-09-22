@@ -141,7 +141,8 @@ while ($seed!=NULL) {
 					$out=db_store_link($seed,$resolved_address);
 
 				if ($out!="") {
-					$sqlQuery+=$out.","
+					$sqlQuery+=$out.",";
+				}
 			} catch(Exception $e) {
 				echo "***ERROR***\n";
 				echo "Couldn't store: $resolved_address\n";
