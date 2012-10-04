@@ -297,6 +297,7 @@ function db_store_link($seed,$link) {
 		db_run_query($strSQL);	
 	}*/
 
+	//print "returnVal(" . 	$seed["iPageID"] . "," . $page_id . "," . $seed["fkQueryID"] . ",1)\n";
 	return "(" . 	$seed["iPageID"] . "," . $page_id . "," . $seed["fkQueryID"] . ",1)";
 }
 
@@ -333,7 +334,7 @@ function db_store_link_internal_only($seed,$link) {
 			print "[W] Warning: Link to excluded page found: " .
 				$seed["iPageID"] ."->$page_id\n";
 		}*/
-		return;
+		return null;
 	} else {
 		//check current level and give shorter level if possible?
 	}
