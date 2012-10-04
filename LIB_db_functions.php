@@ -91,6 +91,35 @@ function /*public*/ db_close() {
 	#mysql_close();
 }
 
+#Cache
+$cache=array();
+$maxCacheSize=1500;
+$minCacheSize=1000;
+function checkCache($key) {
+	global $cache;
+	if (array_key_exists($key,$cache)) {
+		return $cache[$key];
+	}
+	return null;
+}
+
+function addToCache($key,$val) {
+	global $cache;
+	global $maxCacheSize;
+	
+	$size=count($cache);
+	if ($size>$maxCacheSize) {
+		//remove elements from the front (low indicies) until we reach minCacheSize
+		foreach ($cache as $key) {
+			unset($cache[$key]);
+			$size--;
+			if ($size<$minCacheSize) break;
+		}
+	}
+	$cahce[$key]=$val;
+}
+	
+
 function db_get_next_to_harvest() {
 	global $MAX_PENETRATION,$SAME_DOMAIN_FETCH_DELAY;
 	$strSQL = "SELECT tblPages.*, tblDomains.dtLastAccessed from tblPages LEFT JOIN tblDomains ON tblPages.strDomain=tblDomains.strDomain WHERE " .
@@ -199,15 +228,20 @@ function db_store_link($seed,$link) {
 	$cleanUrl=mysql_real_escape_string($cleanUrl);
 	$domain = get_domain_part($link,$SAME_DOMAIN_FETCH_LEVEL);
 	$link=mysql_real_escape_string($link);
-	$strSQL="SELECT iPageID FROM tblPages WHERE strCleanURL='" . $cleanUrl . "'";
-	$page_id = db_run_select($strSQL,true);
+	$page_id = checkCache($cleanUrl);
+	if ($page_id==null) {
+		$strSQL="SELECT iPageID FROM tblPages WHERE strCleanURL='" . $cleanUrl . "'";
+		$page_id = db_run_select($strSQL,true);
+		addToCache($cleanUrl,$page_id);
+	}
 	if ($page_id==NULL) {
 		$strSQL="INSERT INTO tblPages(fkQueryID,strURL,strCleanURL,iLevel,strDomain) VALUES (" .
 			$seed["fkQueryID"] . ",'$link','$cleanUrl'," . ($seed["iLevel"]+1) .",'$domain')";
 		db_run_query($strSQL);
-		$strSQL="SELECT LAST_INSERT_ID();";//TODO: ONLY MYSQL?
+		$strSQL="SELECT LAST_INSERT_ID();";//TODO: ONLY MYSQL
 			//"SELECT iPageID FROM tblPages WHERE strCleanURL='" . $cleanUrl . "'";
 		$page_id = db_run_select($strSQL,true);
+		addToCache($cleanUrl,$page_id);
 	} else {
 		//check current level and give shorter level if possible?
 	}
@@ -244,8 +278,14 @@ function db_store_link_internal_only($seed,$link) {
 	$link=clean_url($link);
 	$link=mysql_real_escape_string($link);
 	//$strSQL="SELECT iPageID FROM tblPages WHERE bolExclude=0 AND strCleanURL='" . $link . "'";
-	$strSQL="SELECT iPageID FROM tblPages WHERE strCleanURL='$link' ORDER BY bolExclude,iPageID LIMIT 1";
-	$page_id = db_run_select($strSQL,true);
+	$page_id = checkCache($cleanUrl);
+	if ($page_id==null) {
+		$strSQL="SELECT iPageID FROM tblPages WHERE strCleanURL='" . $cleanUrl . "'";
+		$page_id = db_run_select($strSQL,true);
+		addToCache($cleanUrl,$page_id);
+	}
+	//$strSQL="SELECT iPageID FROM tblPages WHERE strCleanURL='$link' ORDER BY bolExclude,iPageID LIMIT 1";
+	//$page_id = db_run_select($strSQL,true);
 	if ($page_id==NULL) {
 		/*$strSQL="SELECT iPageID FROM tblPages WHERE strCleanURL='" . $link . "'";
 		$page_id = db_run_select($strSQL,true);
