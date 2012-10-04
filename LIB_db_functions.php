@@ -17,7 +17,7 @@ include_once("CONFIG_db.php");
 function /*public*/ db_connect() {
 	global $db_username, $db_password, $db_dns;
 	try {
-		$GLOBALS["db"] = new PDO($db_dsn, $db_username, $db_password);
+		$GLOBALS["db"] = new PDO($db_dns, $db_username, $db_password);
 	} catch (Exception $e) {
 		global $operator_email;
 		fprintf(STDERR,"ERROR: db_connect().\n" . $e->getMessage() . "\n" . db_error_info($GLOBALS["db"]) . "\n");	
