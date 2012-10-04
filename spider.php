@@ -26,8 +26,9 @@ if ($first_run==true) {
 	//Before starting, check the domains fields of the database and fill in any missing entries
 	//Also fill in missing 
 	$strSQL="SELECT * FROM tblPages WHERE strDomain IS NULL OR strDomain='' OR strCleanURL IS NULL  OR strCleanURL=''";
-	$result = mysql_query($strSQL,$GLOBALS["db"]) or die('Query failed: ' . mysql_error());
-	while (null!=($row = mysql_fetch_array($result, MYSQL_ASSOC))) {
+	$statement = $GLOBALS["db"]->prepare($strSQL);
+	$result = $statement->execute();
+	while (null!=($row = $statement->fetch(PDO::FETCH_ASSOC))) {
 		$url=$row['strURL'];
 		if ($row['strDomain']!=null && $row['strDomain']!='') {
 			$domain = false;//$row['strDomain'];
