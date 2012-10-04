@@ -126,6 +126,7 @@ while ($seed!=NULL) {
 	$anchor_tags = parse_array($strHTML, "<a ", "</a>", EXCL);
 	# Put http attributes for each tag into an array
 	$sqlQuery="INSERT INTO tblLinks(fkParentID,fkChildID,fkQueryID,iNumberTimes) VALUES ";
+	$outputExists=false;
 	for($xx=0; $xx<count($anchor_tags); $xx++) {
 		//print "tags : ". $anchor_tags[$xx]. "\n";
 		$href = get_attribute($anchor_tags[$xx], "href");
@@ -142,6 +143,7 @@ while ($seed!=NULL) {
 					$out=db_store_link($seed,$resolved_address);
 
 				if ($out!="") {
+					$outputExists=true;
 					$sqlQuery+=$out.",";
 				}
 			} catch(Exception $e) {
@@ -154,7 +156,7 @@ while ($seed!=NULL) {
 		#echo "Harvested: ".$resolved_address." \n";
 	}
 	
-	if ($sqlQuery!="") {
+	if ($outputExists) {
 		$sqlQuery=substr($sqlQuery,0,strlen($sqlQuery)-1);//trim last char
 		db_run_query($sqlQuery);//already in try-catch in function
 	}
