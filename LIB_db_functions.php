@@ -93,8 +93,8 @@ function /*public*/ db_close() {
 
 #Cache
 $cache=array();
-$maxCacheSize=1500;
-$minCacheSize=1000;
+$maxCacheSize=5000;
+$minCacheSize=2000;
 function checkCache($key) {
 	global $cache;
 	if (array_key_exists($key,$cache)) {
