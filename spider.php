@@ -138,11 +138,7 @@ while ($seed!=NULL) {
 		if (!exclude_link($resolved_address)) {
 			try {
 				$out="";
-				if ($MAX_PENETRATION==0)//crawl only links in db
-					$out=db_store_link_internal_only($seed,$resolved_address);
-				else //grow crawl list (possibly in conjuction with white list)
-					$out=db_store_link($seed,$resolved_address);
-
+				$out=db_store_link($seed,$resolved_address);
 				if ($out!=NULL && $out!="") {
 					$outputExists=true;
 					$sqlQuery=$sqlQuery.$out.",";

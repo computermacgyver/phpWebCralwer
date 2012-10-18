@@ -251,7 +251,7 @@ function db_store_html($seed,$strHTML,$strURL) {/*!! TODO: Encoding Issues, pull
 
 
 function db_store_link($seed,$link) {
-	global $SAME_DOMAIN_FETCH_LEVEL;
+	global $SAME_DOMAIN_FETCH_LEVEL,$MAX_PENETRATION;
 	//echo "db_store_link($seed,$link)\n";
 	#check if in tblPages
 	#if not, store
@@ -273,7 +273,10 @@ function db_store_link($seed,$link) {
 		$page_id = db_run_select($strSQL,array($cleanUrl),true);
 		addToCache($cleanUrl,$page_id);
 	}
-	if ($page_id==NULL) {
+	if ($page_id==NULL && $MAX_PENETRATION==0) {
+		//we are set only to crawl only pages in db
+		return NULL;
+	} else if ($page_id==NULL) {
 		$strSQL="INSERT INTO tblPages SET fkQueryID=?,strURL=?,strCleanURL=?,iLevel=?,strDomain=?";
 		db_run_query($strSQL,array($seed["fkQueryID"],$link,$cleanUrl,($seed["iLevel"]+1),$domain));
 		//$strSQL="SELECT LAST_INSERT_ID();";//TODO: ONLY MYSQL
@@ -299,59 +302,6 @@ function db_store_link($seed,$link) {
 
 	//print "returnVal(" . 	$seed["iPageID"] . "," . $page_id . "," . $seed["fkQueryID"] . ",1)\n";
 	return "(" . 	$seed["iPageID"] . "," . $page_id . "," . $seed["fkQueryID"] . ",1)";
-}
-
-
-function db_store_link_internal_only($seed,$link) {
-	//echo "db_store_link_internal_only($seed,$link)\n";
-	#check if in tblPages
-	#if not, store
-	#get unique id, tblPages.iPageID
-	#get if there is link from seed[iPageID] to $resolved address
-	#if so increment link count
-	#if not, insert new record with link count = 0
-
-	#echo "start......db_store_link(...)\n";
-	#echo "link is: $link\n";
-	$link=html_entity_decode($link);
-	$link=clean_url($link);
-	$link=mysql_real_escape_string($link);
-	//$strSQL="SELECT iPageID FROM tblPages WHERE bolExclude=0 AND strCleanURL='" . $link . "'";
-	$page_id = checkCache($cleanUrl);
-	if ($page_id==null) {
-		$strSQL="SELECT iPageID FROM tblPages WHERE strCleanURL=?";
-		$page_id = db_run_select($strSQL,array($cleanUrl),true);
-		addToCache($cleanUrl,$page_id);
-	}
-	//$strSQL="SELECT iPageID FROM tblPages WHERE strCleanURL='$link' ORDER BY bolExclude,iPageID LIMIT 1";
-	//$page_id = db_run_select($strSQL,true);
-	if ($page_id==NULL) {
-		/*$strSQL="SELECT iPageID FROM tblPages WHERE strCleanURL='" . $link . "'";
-		$page_id = db_run_select($strSQL,true);
-		if ($page_id==NULL) {
-			return; //skip  if not in set
-		} else {
-			print "[W] Warning: Link to excluded page found: " .
-				$seed["iPageID"] ."->$page_id\n";
-		}*/
-		return null;
-	} else {
-		//check current level and give shorter level if possible?
-	}
-
-	//$strSQL="SELECT iLinkID FROM tblLinks " .
-	//		"WHERE fkParentID=" . $seed["iPageID"] . " AND fkChildID=" . $page_id;
-	//$link_id = db_run_select($strSQL,true);
-	//if ($link_id==NULL) {
-		$strSQL="INSERT INTO tblLinks SET fkParentID=?,fkChildID=?,fkQueryID=?,iNumberTimes=?,iLevel=?";
-		db_run_query($strSQL,array($seed["iPageID"],$page_id,$seed["fkQueryID"],1,1));
-	//} else {
-		//update
-		#$strSQL="UPDATE tblLinks SET iNumberTimes=iNumberTimes+1 WHERE iLinkID=" . $link_id;
-		#db_run_query($strSQL);	
-	//}
-
-	return "(" .$seed["iPageID"] . "," . $page_id . "," . $seed["fkQueryID"] . ",1,1)";
 }
 
 /*function db_mark_all_unprocessed() {
