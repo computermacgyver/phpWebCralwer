@@ -11,7 +11,7 @@ $db_username = "jrandom";
 $db_password = "ASDF!!1!one1";
 $db_name = "somedb";
 $db_port = 3306;
-$db_dsn = "mysql:host=$db_host;port=$db_port;dbname=$db_name";
+$db_dns = "mysql:host=$db_host;port=$db_port;dbname=$db_name";
 ## $operator_email is used to mail the user on script completion
 $operator_email = "j.random@example.com";
 
