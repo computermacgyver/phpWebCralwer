@@ -175,7 +175,9 @@ function db_get_next_to_harvest() {
 	//print_r($result);
 	
 	if ($result==NULL) {//try without domain table
-		$strSQL = "SELECT tblPages.*, CURRENT_TIMESTAMP AS dtLastAccessed from tblPages WHERE bolHarvested=0 LIMIT 1";
+		$strSQL = "SELECT tblPages.*, CURRENT_TIMESTAMP AS dtLastAccessed from tblPages WHERE bolHarvested=0 ";
+		if ($MAX_PENETRATION!=-1) $strSQL.=" AND iLevel < " . $MAX_PENETRATION;
+		$strSQL .= " LIMIT 1";
 		//print "$strSQL\n";
 		$result = db_run_select($strSQL);
 		if ($result == NULL) return NULL; //No more pages
