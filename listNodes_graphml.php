@@ -45,7 +45,7 @@ mysql_free_result($result);
 
 //$strSQL="SELECT tblPages.strCleanURL as fkParentID, t.strCleanURL as fkChildID, SUM(iNumberTimes) as iNumberTimes FROM (tblLinks INNER JOIN tblPages as t ON tblLinks.fkChildID=t.iPageID) INNER JOIN tblPages ON tblLinks.fkParentID=tblPages.iPageID  WHERE tblPages.bolCentral=1 AND t.bolCentral=1 AND NOT tblPages.bolExclude AND NOT t.bolExclude AND tblPages.strDomain='$strDomain' AND t.strDomain='$strDomain'";
 $nodeList=implode(",",$arrNodes);
-$strSQL="SELECT fkParentID, fkChildID, iNumberTimes FROM tblLinks WHERE fkParentID IN ($nodeList) AND fkChildID IN ($nodeList)";
+$strSQL="SELECT fkParentID, fkChildID, iNumberTimes FROM tblLinks WHERE fkParentID IN ($nodeList) AND fkChildID IN ($nodeList) AND fkParentID<>fkChildID";
 
 
 $result = mysql_query($strSQL);
