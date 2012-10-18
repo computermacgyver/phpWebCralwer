@@ -22,6 +22,8 @@ set_time_limit(0);				// Don't let PHP timeout
 
 db_connect();
 
+$stop=false;
+
 if ($first_run==true) {
 	//Before starting, check the domains fields of the database and fill in any missing entries
 	//Also fill in missing 
@@ -169,7 +171,7 @@ while ($seed!=NULL) {
 	$strSQL="SELECT strValue FROM tblConfig WHERE strName='CrawlerStatus'";
 	$result = db_run_select($strSQL,null,true);
 	if ($result=="STOP") {
-		echo "***Receivend command to STOP\n. Stopping now; crawl is incomplete.\n";
+		echo "***Received command to STOP: Stopping now; crawl is incomplete.\n";
 		mail($operator_email, "Crawl Stopped", "Bot stopped via DB Stop signal: " . date('Y-m-d H:i:s') ."\n","FROM: " . $operator_email);
 		$stop=true;
 		break;
