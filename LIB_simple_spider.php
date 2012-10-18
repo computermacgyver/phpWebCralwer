@@ -242,7 +242,7 @@ function clean_url($url) {
 			//echo "$aKey == $aVal\n";
 			//if (strpos($aKey,"id")>0 || $aKey=="p" || $aKey=="post" || $aKey=="page" || $aKey=="v" ) {
 //Updated 2010-06-27
-if (strpos($aKey,"id")!==FALSE || $aKey=="p" || $aKey=="post" || $aKey=="page" || $aKey=="v"  || $aKey=="reference" || $aKey=="story" || $aKey=="s" || $aKey=="number" || $aKey=="doc" || $aKey=="lang" ) {
+if (strpos($aKey,"id")!==FALSE || $aKey=="p" || $aKey=="post" || $aKey=="page" || $aKey=="v"  || $aKey=="reference" || $aKey=="story" || $aKey=="s" || $aKey=="number" || $aKey=="doc" || $aKey=="lang" || $aKey=="t" || $aKey=="f") {
 				$url=$url . "?" . $aKey . "=" . $aVal;
 				//break;
 			}
