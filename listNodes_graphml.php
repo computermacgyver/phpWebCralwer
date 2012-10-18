@@ -19,8 +19,7 @@ echo "xml version=\"1.0\" encoding=\"UTF-8\"" . "?" . ">\n";
   <graph id="G" edgedefault="directed">
 <?php
 //  <key id="day" for="node" attr.name="day" attr.type="int" />
-$strSQL="SELECT iPageID, strCleanURL " .
-	" FROM tblPages AND bolExclude=0";
+$strSQL="SELECT iPageID, strCleanURL FROM tblPages WHERE bolExclude=0";
 $result = mysql_query($strSQL);
 $counter=1;
 $arrNodes=array();
