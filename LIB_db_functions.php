@@ -185,7 +185,7 @@ function db_get_next_to_harvest() {
 	}
 	
 	//If we get here we do have a page to return and it is from a different domain or if from the same domain we have waited appropriately
-	echo "Have page with id " . $result['iPageID'] . " about to update/insert tblDoamins\n";
+	echo "Have page with id " . $result['iPageID'] . " about to update/insert tblDomains\n";
 	//is it in the domain table?
 	if ($result['dtLastAccessed']==NULL) {
 		//no. insert it
