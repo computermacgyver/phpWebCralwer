@@ -26,8 +26,9 @@ if ($first_run==true) {
 	//Before starting, check the domains fields of the database and fill in any missing entries
 	//Also fill in missing 
 	$strSQL="SELECT * FROM tblPages WHERE strDomain IS NULL OR strDomain='' OR strCleanURL IS NULL  OR strCleanURL=''";
-	$result = mysql_query($strSQL,$GLOBALS["db"]) or die('Query failed: ' . mysql_error());
-	while (null!=($row = mysql_fetch_array($result, MYSQL_ASSOC))) {
+	$statement = $GLOBALS["db"]->prepare($strSQL);
+	$result = $statement->execute();
+	while (null!=($row = $statement->fetch(PDO::FETCH_ASSOC))) {
 		$url=$row['strURL'];
 		if ($row['strDomain']!=null && $row['strDomain']!='') {
 			$domain = false;//$row['strDomain'];
@@ -125,6 +126,8 @@ while ($seed!=NULL) {
 	$anchor_tags = parse_array($strHTML, "<a ", "</a>", EXCL);
 	# Put http attributes for each tag into an array
 	$sqlQuery="INSERT INTO tblLinks(fkParentID,fkChildID,fkQueryID,iNumberTimes) VALUES ";
+	//print "1 sqlQuery is $sqlQuery\n";
+	$outputExists=false;
 	for($xx=0; $xx<count($anchor_tags); $xx++) {
 		//print "tags : ". $anchor_tags[$xx]. "\n";
 		$href = get_attribute($anchor_tags[$xx], "href");
@@ -140,8 +143,10 @@ while ($seed!=NULL) {
 				else //grow crawl list (possibly in conjuction with white list)
 					$out=db_store_link($seed,$resolved_address);
 
-				if ($out!="") {
-					$sqlQuery+=$out.",";
+				if ($out!=NULL && $out!="") {
+					$outputExists=true;
+					$sqlQuery=$sqlQuery.$out.",";
+					//print "2 sqlQuery is $sqlQuery\n";
 				}
 			} catch(Exception $e) {
 				echo "***ERROR***\n";
@@ -153,7 +158,8 @@ while ($seed!=NULL) {
 		#echo "Harvested: ".$resolved_address." \n";
 	}
 	
-	if ($sqlQuery!="") {
+	//print "3 sqlQuery is $sqlQuery\n";
+	if ($outputExists) {
 		$sqlQuery=substr($sqlQuery,0,strlen($sqlQuery)-1);//trim last char
 		db_run_query($sqlQuery);//already in try-catch in function
 	}
@@ -165,7 +171,7 @@ while ($seed!=NULL) {
 	Check DB to see if flag has been left to stop*/
 	$stop=false;
 	$strSQL="SELECT strValue FROM tblConfig WHERE strName='CrawlerStatus'";
-	$result = db_run_select($strSQL,true);
+	$result = db_run_select($strSQL,null,true);
 	if ($result=="STOP") {
 		echo "***Receivend command to STOP\n. Stopping now; crawl is incomplete.\n";
 		mail($operator_email, "Crawl Stopped", "Bot stopped via DB Stop signal: " . date('Y-m-d H:i:s') ."\n","FROM: " . $operator_email);

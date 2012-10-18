@@ -15,73 +15,89 @@ include_once("CONFIG_db.php");
 # 
 
 function /*public*/ db_connect() {
-	global $db_host, $db_username, $db_password, $db_name;
+	global $db_username, $db_password, $db_dns;
 	try {
-		$GLOBALS["db"] = mysql_connect($db_host, $db_username, $db_password);
-		mysql_select_db($db_name,$GLOBALS["db"]);
+		//print "DNS is $db_dns\n";
+		$GLOBALS["db"] = new PDO($db_dns, $db_username, $db_password);
 	} catch (Exception $e) {
 		global $operator_email;
-		fprintf(STDERR,"ERROR: db_connect().\n" . $e->getMessage() . "\n" . mysql_error() . "\n");	
-		mail($operator_email, "phpCrawler Error", "Could not connect to db: " . mysql_error() . "\n" . date('Y-m-d H:i:s') ."\n","FROM: " . $operator_email);
-		die("Could not connect: " . mysql_error());
+		fprintf(STDERR,"ERROR: db_connect().\n" . $e->getMessage() . "\n");
+		fprintf(STDERR, db_error_info($GLOBALS["db"]) . "\n");	
+		mail($operator_email, "phpCrawler Error", "Could not connect to db: " . db_error_info($GLOBALS["db"]) . "\n" . date('Y-m-d H:i:s') ."\n","FROM: " . $operator_email);
+		die("Could not connect: " . $GLOBALS["db"]->errorInfo());
 	}
 }
 
 function /*private*/ db_check_connection() {
-	if( !mysql_ping($GLOBALS["db"]) ) db_connect();
+	//TODO: Port to PDO
+	//if( !mysql_ping($GLOBALS["db"]) ) db_connect();
 }
 
 #db_get_next_spider_target();
 #db_store_html($seed,$downloaded_page['FILE'])
 #db_store_link($seed,$resolved_address;
 
-function /*private*/ db_run_select($strSQL,$returnVal=false) {
+function /*private*/ db_run_select($strSQL,$arrParams=null,$returnVal=false) {
 	/*global $db_name;
 	mysql_select_db($db_name);*/
 	#echo $strSQL . "\n";	
+	$result=false;
 	try {
 		db_check_connection();
-		$result = mysql_query($strSQL,$GLOBALS["db"]);
+		//$result = mysql_query($strSQL,$GLOBALS["db"]);
+		$statement = $GLOBALS["db"]->prepare($strSQL);
+		$result = $statement->execute($arrParams);
+
 	}
 	catch(Exception $e)
 	{
-      fprintf(STDERR,"ERROR: db_run_select.\n" . $e->getMessage() . "\n" . mysql_error() . "\n");	
-	  echo "$strSQL\n" . $e->getMessage() ."\n"  . mysql_error();
+      fprintf(STDERR,"ERROR: db_run_select.\n" . $e->getMessage() . "\n" . db_error_info($statement) . "\n");	
+	  echo "$strSQL\n" . $e->getMessage() ."\n"  . db_error_info($statement);
 	  die();
 	}
 	
 	if (!$result) {
 		return null;
 	}elseif (!$returnVal) {
-		$row = mysql_fetch_array($result, MYSQL_ASSOC);
-		$output = $row;
+		//$row = mysql_fetch_array($result, MYSQL_ASSOC);
+		//$output = $row;
+		$output = $statement->fetch(PDO::FETCH_ASSOC);
 	} else  {
-		$row = mysql_fetch_array($result, MYSQL_NUM);
+		//$row = mysql_fetch_array($result, MYSQL_NUM);
+		$row = $statement->fetch(PDO::FETCH_NUM);
 		if ($row==Null)
 			$output = Null;
 		else 
 			$output = $row[0];
 	}
-	mysql_free_result($result);
+	//mysql_free_result($result);
+	db_close_cursor($statement);
+	//echo "about to return from db_select output is ";
+	//print_r($output);
 	return $output;
 }
 
-function /*private*/ db_run_query($strSQL) {
+function /*private*/ db_run_query($strSQL,$arrParams=null) {
 	//mysql_select_db("DBNAME");
 	#echo $strSQL . "\n";
+	$result=false;
 	try {
 		db_check_connection();	
-		$result = mysql_query($strSQL,$GLOBALS["db"]);
+		//$result = mysql_query($strSQL,$GLOBALS["db"]);
+		$statement = $GLOBALS["db"]->prepare($strSQL);
+		$result = $statement->execute($arrParams);
+
 	}
 	catch(Exception $e)
 	{
-	  echo "$strSQL\n" . $e->getMessage() ."\n"  . mysql_error();
+	  echo "$strSQL\n" . $e->getMessage() ."\n"  . db_error_info($statement);
+	  db_close_cursor($statement);
 	}
 	if (!$result) {
 		global $operator_email;
 		print "ERROR: Query returned false:  $strSQL\n";
-		fprintf(STDERR,"ERROR: Query returned false.\n" . mysql_error() . "\n");
-		mail($operator_email, "phpCrawler Error", "Query returned false with error: " . mysql_error() . "\n" . date('Y-m-d H:i:s') ."\nQuery was:\n$strSQL\n","FROM: " . $operator_email);
+		fprintf(STDERR,"ERROR: Query returned false.\n" . db_error_info($statement) . "\n");
+		mail($operator_email, "phpCrawler Error", "Query returned false with error: " . db_error_info($statement) . "\n" . date('Y-m-d H:i:s') ."\nQuery was:\n$strSQL\n","FROM: " . $operator_email);
 		throw new Exception("ERROR: Query returned false:  \n$strSQL\n\n\n");
 		#die("Query returned false:  $strSQL\n");
 	}
@@ -90,6 +106,29 @@ function /*private*/ db_run_query($strSQL) {
 function /*public*/ db_close() {
 	#mysql_close();
 }
+
+function db_close_cursor($statement) {
+	try {
+		$statement->closeCursor();
+	} catch(Exception $e) {
+		//ignore
+	}
+}
+
+function db_error_info($obj) {
+	$out="";
+	try {
+		$out=$obj->errorInfo();
+	} catch(Exception $e) {
+		try {
+			$out=$GLOBALS["db"]->errorInfo();
+		} catch(Exception $e) {
+			$out="(error info unavailable)";
+		}
+	}
+	return $out;
+}
+
 
 #Cache
 $cache=array();
@@ -139,7 +178,7 @@ function db_get_next_to_harvest() {
 		$strSQL = "SELECT tblPages.*, CURRENT_TIMESTAMP AS dtLastAccessed from tblPages WHERE bolHarvested=0 LIMIT 1";
 		//print "$strSQL\n";
 		$result = db_run_select($strSQL);
-		if ($result == NULL) return $result; //No more pages
+		if ($result == NULL) return NULL; //No more pages
 		//else wait the appropriate time to return a page of the same domain
 		//print "SLEEP for same-domain page";
 		sleep($SAME_DOMAIN_FETCH_DELAY);
@@ -184,18 +223,18 @@ function db_store_html($seed,$strHTML,$strURL) {/*!! TODO: Encoding Issues, pull
 		$strHTML = strtolower_utf8($strHTML);
 		$return = $strHTML;
 		try {
-			$strHTML = mysql_real_escape_string($strHTML);
+			$strHTML = $strHTML;
 			if ($strURL && clean_url($strURL)!=clean_url($seed["strURL"])) {
-				$domain=mysql_real_escape_string(get_domain($strURL));
-				$cleanURL=mysql_real_escape_string(clean_url($strURL));
-				$url=mysql_real_escape_string($strURL);
-				$strSQL = "UPDATE tblPages SET strURL='$url', "
-					. " strCleanURL='$cleanURL', strHTML='" . $strHTML . "' WHERE iPageID=" . $seed["iPageID"];	
+				$domain=get_domain($strURL);
+				$cleanURL=clean_url($strURL);
+				$url=$strURL;
+				$strSQL = "UPDATE tblPages SET strURL=?, strCleanURL=?, strHTML=? WHERE iPageID=?";	
+				$params=array($url,$cleanURL,$strHTML,$seed["iPageID"]);
 			} else {
-				$strSQL = "UPDATE tblPages SET " .
-					"strHTML='" . $strHTML . "' WHERE iPageID=" . $seed["iPageID"];
+				$strSQL = "UPDATE tblPages SET strHTML=? WHERE iPageID=?";
+				$params=array($strHTML,$seed["iPageID"]);
 			}
-			db_run_query($strSQL);
+			db_run_query($strSQL,$params);
 			#echo "end db_store_html(...)\n";
 			#'" . date("YmdHi___NEED SECONDS__") . "'"
 			#e.g. '20100131000000' 2010-01-31 00:00:00
@@ -225,22 +264,21 @@ function db_store_link($seed,$link) {
 	#echo "link is: $link\n";
 	$link=html_entity_decode($link);
 	$cleanUrl=clean_url($link);
-	$cleanUrl=mysql_real_escape_string($cleanUrl);
+	$cleanUrl=$cleanUrl;
 	$domain = get_domain_part($link,$SAME_DOMAIN_FETCH_LEVEL);
-	$link=mysql_real_escape_string($link);
+	$link=$link;
 	$page_id = checkCache($cleanUrl);
 	if ($page_id==null) {
-		$strSQL="SELECT iPageID FROM tblPages WHERE strCleanURL='" . $cleanUrl . "'";
-		$page_id = db_run_select($strSQL,true);
+		$strSQL="SELECT iPageID FROM tblPages WHERE strCleanURL=?";
+		$page_id = db_run_select($strSQL,array($cleanUrl),true);
 		addToCache($cleanUrl,$page_id);
 	}
 	if ($page_id==NULL) {
-		$strSQL="INSERT INTO tblPages(fkQueryID,strURL,strCleanURL,iLevel,strDomain) VALUES (" .
-			$seed["fkQueryID"] . ",'$link','$cleanUrl'," . ($seed["iLevel"]+1) .",'$domain')";
-		db_run_query($strSQL);
-		$strSQL="SELECT LAST_INSERT_ID();";//TODO: ONLY MYSQL
+		$strSQL="INSERT INTO tblPages SET fkQueryID=?,strURL=?,strCleanURL=?,iLevel=?,strDomain=?";
+		db_run_query($strSQL,array($seed["fkQueryID"],$link,$cleanUrl,($seed["iLevel"]+1),$domain));
+		//$strSQL="SELECT LAST_INSERT_ID();";//TODO: ONLY MYSQL
 			//"SELECT iPageID FROM tblPages WHERE strCleanURL='" . $cleanUrl . "'";
-		$page_id = db_run_select($strSQL,true);
+		$page_id = $GLOBALS["db"]->lastInsertId();//db_run_select($strSQL,true);
 		addToCache($cleanUrl,$page_id);
 	} else {
 		//check current level and give shorter level if possible?
@@ -259,6 +297,7 @@ function db_store_link($seed,$link) {
 		db_run_query($strSQL);	
 	}*/
 
+	//print "returnVal(" . 	$seed["iPageID"] . "," . $page_id . "," . $seed["fkQueryID"] . ",1)\n";
 	return "(" . 	$seed["iPageID"] . "," . $page_id . "," . $seed["fkQueryID"] . ",1)";
 }
 
@@ -280,8 +319,8 @@ function db_store_link_internal_only($seed,$link) {
 	//$strSQL="SELECT iPageID FROM tblPages WHERE bolExclude=0 AND strCleanURL='" . $link . "'";
 	$page_id = checkCache($cleanUrl);
 	if ($page_id==null) {
-		$strSQL="SELECT iPageID FROM tblPages WHERE strCleanURL='" . $cleanUrl . "'";
-		$page_id = db_run_select($strSQL,true);
+		$strSQL="SELECT iPageID FROM tblPages WHERE strCleanURL=?";
+		$page_id = db_run_select($strSQL,array($cleanUrl),true);
 		addToCache($cleanUrl,$page_id);
 	}
 	//$strSQL="SELECT iPageID FROM tblPages WHERE strCleanURL='$link' ORDER BY bolExclude,iPageID LIMIT 1";
@@ -295,7 +334,7 @@ function db_store_link_internal_only($seed,$link) {
 			print "[W] Warning: Link to excluded page found: " .
 				$seed["iPageID"] ."->$page_id\n";
 		}*/
-		return;
+		return null;
 	} else {
 		//check current level and give shorter level if possible?
 	}
@@ -304,9 +343,8 @@ function db_store_link_internal_only($seed,$link) {
 	//		"WHERE fkParentID=" . $seed["iPageID"] . " AND fkChildID=" . $page_id;
 	//$link_id = db_run_select($strSQL,true);
 	//if ($link_id==NULL) {
-		$strSQL="INSERT INTO tblLinks(fkParentID,fkChildID,fkQueryID,iNumberTimes,iLevel) VALUES (" .
-			$seed["iPageID"] . "," . $page_id . "," . $seed["fkQueryID"] . ",1,1)";
-		db_run_query($strSQL);
+		$strSQL="INSERT INTO tblLinks SET fkParentID=?,fkChildID=?,fkQueryID=?,iNumberTimes=?,iLevel=?";
+		db_run_query($strSQL,array($seed["iPageID"],$page_id,$seed["fkQueryID"],1,1));
 	//} else {
 		//update
 		#$strSQL="UPDATE tblLinks SET iNumberTimes=iNumberTimes+1 WHERE iLinkID=" . $link_id;
@@ -328,20 +366,22 @@ function db_get_next_to_process() {
 }
 
 function db_marked_processed($seed) {
-	$strSQL = "UPDATE tblPages SET bolProcessed=1 WHERE iPageID=" . $seed["iPageID"];
-	db_run_query($strSQL);
+	$strSQL = "UPDATE tblPages SET bolProcessed=1 WHERE iPageID=?";
+	db_run_query($strSQL,$seed["iPageID"]);
 }
 
 
 
 function db_update_domain_links($strFromDomain,$strToDomain) {
-	$strSQL="SELECT iHostID,iCount FROM tblExternalHosts WHERE strFromDomain='$strFromDomain' AND $strToDomain='$strToDomain'";
-	$result=db_run_select($strSQL);
+	$strSQL="SELECT iHostID,iCount FROM tblExternalHosts WHERE strFromDomain=? AND strToDomain=?";
+	$result=db_run_select($strSQL,array($strFromDomain,$strToDomain));
 	if ($result==NULL) {
-		$strSQL="INSERT INTO tblExternalHosts (strFromDomain,strToDomain,iCount) VALUES ('$strFromDomain','$strToDomain',1)";
+		$strSQL="INSERT INTO tblExternalHosts SET strFromDomain=?, strToDomain=?, iCount=?";
+		$params=array($strFromDomain,$strToDomain,1);
 	} else {
 		$iCount=int($result['iCount'])+1;
-		$strSQL="UPDATE tblExternalHosts SET iCount=$iCount WHERE iHostID=".$result['iHostID'];
+		$strSQL="UPDATE tblExternalHosts SET iCount=? WHERE iHostID=?";
+		$params=array($iCount,$result['iHostID']);
 	}
-	db_run_query($strSQL);
+	db_run_query($strSQL,$params);
 }
