@@ -163,7 +163,7 @@ function db_get_next_to_harvest() {
 	global $MAX_PENETRATION,$SAME_DOMAIN_FETCH_DELAY;
 	$strSQL = "SELECT tblPages.*, tblDomains.dtLastAccessed from tblPages LEFT JOIN tblDomains ON tblPages.strDomain=tblDomains.strDomain WHERE " .
 		" bolHarvested=0 ";
-	if ($MAX_PENETRATION!=-1) $strSQL.=" AND iLevel < " . $MAX_PENETRATION;
+	if ($MAX_PENETRATION!=-1) $strSQL.=" AND iLevel <= " . $MAX_PENETRATION;
 	$strSQL .= " AND (ADDTIME(tblDomains.dtLastAccessed,'$SAME_DOMAIN_FETCH_DELAY')<CURRENT_TIMESTAMP OR tblDomains.dtLastAccessed IS NULL)";
 	$strSQL.=" ORDER BY tblDomains.dtLastAccessed";
 	$strSQL.=" LIMIT 1";
@@ -176,7 +176,7 @@ function db_get_next_to_harvest() {
 	
 	if ($result==NULL) {//try without domain table
 		$strSQL = "SELECT tblPages.*, CURRENT_TIMESTAMP AS dtLastAccessed from tblPages WHERE bolHarvested=0 ";
-		if ($MAX_PENETRATION!=-1) $strSQL.=" AND iLevel < " . $MAX_PENETRATION;
+		if ($MAX_PENETRATION!=-1) $strSQL.=" AND iLevel <= " . $MAX_PENETRATION;
 		$strSQL .= " LIMIT 1";
 		//print "$strSQL\n";
 		$result = db_run_select($strSQL);
