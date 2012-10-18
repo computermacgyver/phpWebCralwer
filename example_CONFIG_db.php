@@ -30,7 +30,10 @@ $whitelistdomainlevel=2;
 $whitelistdomainlist="gov.uk:org.uk";
 //Fetch only first part of each page, to avoid huge files? (Experimental!)
 $fetchrangeonly=false;
+
 // If $fetchrangeonly=true, what range to fetch? Here, the first 100KB is specified.
+// Change this value to fetch pages larger than 100kb.
+// NOTE: MySQL has a default maximum packet size of 1MB. If you wish to store pages larger than 1MB you will need to adjust this packet size in your server's confirguration: https://dev.mysql.com/doc/refman/5.5/en/server-system-variables.html#sysvar_max_allowed_packet
 $maxfetchsize=100000;
 
 // Set spider penetration depth. 
