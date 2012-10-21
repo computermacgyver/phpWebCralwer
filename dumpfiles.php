@@ -12,6 +12,7 @@ include_once("LIB_encoding.php");
 
 #output dir
 exec("mkdir -p files/html");
+db_connect();
 
 $strSQL="SELECT iPageID,strHTML FROM tblPages WHERE bolHarvested";
 $statement = $GLOBALS["db"]->prepare($strSQL);
