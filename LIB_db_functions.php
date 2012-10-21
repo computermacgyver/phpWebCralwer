@@ -71,7 +71,7 @@ function /*private*/ db_run_select($strSQL,$arrParams=null,$returnVal=false) {
 			$output = $row[0];
 	}
 	//mysql_free_result($result);
-	db_close_cursor($statement);
+	db_close_cursor($statement);//TODO:  I think this should be $statement->closeCursor(); Working now, need to change and test
 	//echo "about to return from db_select output is ";
 	//print_r($output);
 	return $output;
@@ -312,7 +312,7 @@ function db_store_link($seed,$link) {
 }*/
 
 function db_get_next_to_process() {
-	$strSQL = "SELECT * FROM tblPages WHERE bolProcessed=0 AND bolHarvested=1 AND bolCentral=1 LIMIT 1";
+	$strSQL = "SELECT * FROM tblPages WHERE bolProcessed=0 AND bolHarvested=1 LIMIT 1";
 	$seed=db_run_select($strSQL);
 	return $seed;
 }
