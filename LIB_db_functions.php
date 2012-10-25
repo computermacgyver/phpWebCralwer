@@ -118,10 +118,10 @@ function db_close_cursor($statement) {
 function db_error_info($obj) {
 	$out="";
 	try {
-		$out=$obj->errorInfo();
+		$out=print_r($obj->errorInfo(),true);
 	} catch(Exception $e) {
 		try {
-			$out=$GLOBALS["db"]->errorInfo();
+			$out=print_r($GLOBALS["db"]->errorInfo(),true);
 		} catch(Exception $e) {
 			$out="(error info unavailable)";
 		}
