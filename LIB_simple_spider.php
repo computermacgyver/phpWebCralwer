@@ -347,7 +347,7 @@ function exclude_link($link)
 	     }
 	   }
 	   
-	   global $whitelisturl,$$whitelisturllist_arr
+	   global $whitelisturl,$$whitelisturllist_arr;
 	   if ($whitelisturl) {
       	 	$found=false;
       	 	for ($x=0;$x<count($whitelisturllist_arr);$x++) {
