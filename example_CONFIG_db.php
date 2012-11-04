@@ -28,6 +28,15 @@ $whitelistdomain=true;
 $whitelistdomainlevel=2; 
 //list of domains separated with : (no starting / ending :)
 $whitelistdomainlist="gov.uk:org.uk";
+
+//Restrict crawling to a URL whitelist? true | false
+$whitelisturl=false;	
+//list of phrases that must appear in url separated with : (no starting / ending :)
+$whitelisturllist="example.com/this-part-only:anothersite.com:thirdsite.com/with-sub-section";
+
+
+
+
 //Fetch only first part of each page, to avoid huge files? (Experimental!)
 $fetchrangeonly=false;
 

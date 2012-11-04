@@ -45,6 +45,12 @@ if ($whitelistdomain) {
 	$whitelistdomainlist_part=":$whitelistdomainlist:";
 }
 
+global $whitelisturl,$whitelisturllist,$whitelisturllist_arr;
+if ($whitelisturl) {
+	$whitelisturl_arr=explode(":",$whitelisturllist);
+}
+
+
 
 
 
@@ -339,6 +345,18 @@ function exclude_link($link)
 				$exclude=true;
 			}
 	     }
+	   }
+	   
+	   global $whitelisturl,$$whitelisturllist_arr
+	   if ($whitelisturl) {
+      	 	$found=false;
+      	 	for ($x=0;$x<count($whitelisturllist_arr);$x++) {
+      	 		if (strpos($link,$whitelisturllist_arr[$x])!==false) {
+      	 			$found=true;
+      	 			break;
+      	 		}
+      	 	}
+      	 	if ($found===false) $exclude=true;
 	   }      
 
     return $exclude;
