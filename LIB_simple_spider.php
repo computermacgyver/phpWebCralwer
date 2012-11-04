@@ -47,7 +47,7 @@ if ($whitelistdomain) {
 
 global $whitelisturl,$whitelisturllist,$whitelisturllist_arr;
 if ($whitelisturl) {
-	$whitelisturl_arr=explode(":",$whitelisturllist);
+	$whitelisturllist_arr=explode(":",$whitelisturllist);
 }
 
 
