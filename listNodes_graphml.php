@@ -25,7 +25,7 @@ $statement = $GLOBALS["db"]->prepare($strSQL);
 $result = $statement->execute();
 $counter=1;
 $arrNodes=array();
-while (null!=($row = $statement->fetch(PDO::FETCH_ASSOC))) {
+while (null!=($record = $statement->fetch(PDO::FETCH_ASSOC))) {
 	#echo "$counter \"" . $record["strURL"] . "\"\r\n";
 	$iPageID=$record["iPageID"];
 	$arrNodes[]=$iPageID;
@@ -52,7 +52,7 @@ $strSQL="SELECT fkParentID, fkChildID, iNumberTimes FROM tblLinks WHERE fkParent
 $statement = $GLOBALS["db"]->prepare($strSQL);
 $result = $statement->execute();
 $counter=1;
-while (null!=($row = $statement->fetch(PDO::FETCH_ASSOC))) {
+while (null!=($record = $statement->fetch(PDO::FETCH_ASSOC))) {
 	#echo ($arrNodes[$record["fkParentID"]][0]) . " " . 
 #		($arrNodes[$record["fkChildID"]][0]) .
 #		" " . ($record["iNumberTimes"]+1). "\r\n";
