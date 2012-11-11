@@ -155,7 +155,7 @@ function addToCache($key,$val) {
 			if ($size<$minCacheSize) break;
 		}
 	}
-	$cahce[$key]=$val;
+	$cache[$key]=$val;
 }
 	
 
