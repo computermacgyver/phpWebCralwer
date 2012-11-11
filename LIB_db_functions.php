@@ -144,7 +144,7 @@ function checkCache($key) {
 
 function addToCache($key,$val) {
 	global $cache;
-	global $maxCacheSize;
+	global $maxCacheSize,$minCacheSize;
 	
 	$size=count($cache);
 	if ($size>$maxCacheSize) {
